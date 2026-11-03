@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zombie Outbreak</title>
+<style>
+:root{--bg:#101820;--panel:#172631;--line:#36505b;--green:#8be36d;--gold:#ffd45a;--red:#ff6868;--blue:#68d8ff}
+*{box-sizing:border-box}body{margin:0;background:#0b1218;color:#eef7ee;font-family:Consolas,monospace;overflow:hidden}
+button{font:inherit;color:#102018;background:var(--green);border:0;padding:11px 16px;font-weight:900;cursor:pointer;box-shadow:0 4px 0 #477d3c;transition:.12s}
+button:hover{filter:brightness(1.12);transform:translateY(-1px)}button:active{transform:translateY(3px);box-shadow:0 1px 0 #477d3c}
+button.secondary{background:#243b48;color:#eaf7f8;box-shadow:0 4px 0 #101e27;border:1px solid #49616b}
+button.gold{background:var(--gold);box-shadow:0 4px 0 #96782b}
+.hidden{display:none!important}
+#game{position:relative;width:100vw;height:100vh;background:#172a25;overflow:hidden}
+canvas{display:block;width:100%;height:100%;image-rendering:pixelated;cursor:crosshair;touch-action:none}
+#hud{position:absolute;inset:0;pointer-events:none}
+.panel{background:linear-gradient(180deg,rgba(15,27,34,.94),rgba(15,27,34,.82));border:2px solid var(--line);box-shadow:0 5px 0 rgba(0,0,0,.3);padding:10px}
+#topbar{position:absolute;top:12px;left:12px;right:12px;display:flex;gap:10px;align-items:stretch;justify-content:space-between}
+.stat{min-width:125px}.stat small{color:#a9c0c1;font-size:11px;display:block;margin-bottom:5px}.stat strong{font-size:19px}
+.bar{height:9px;background:#31434a;margin-top:6px;border:1px solid #61747a}.bar i{display:block;height:100%;background:var(--green);width:100%}
+#rightHud{position:absolute;right:14px;top:100px;display:grid;gap:8px;text-align:right}
+#bottomHud{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);display:flex;gap:10px;align-items:end}
+#weaponBox{min-width:190px;text-align:center}#weaponName{font-size:16px;color:var(--gold);font-weight:bold}
+#toast{position:absolute;top:28%;left:50%;transform:translateX(-50%);font-size:22px;font-weight:bold;text-shadow:3px 3px #000;text-align:center;white-space:nowrap}
+#crosshair{position:absolute;width:18px;height:18px;border:2px solid #fff;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;box-shadow:0 0 5px #000}
+#overlay{position:absolute;inset:0;display:grid;place-items:center;background:linear-gradient(0deg,rgba(3,10,13,.9),rgba(3,10,13,.58)),repeating-linear-gradient(0deg,transparent 0 3px,rgba(255,255,255,.018) 3px 4px)}
+.card{width:min(620px,92vw);padding:28px;background:#14242d;border:3px solid #54727a;box-shadow:10px 10px 0 #071014;text-align:center}
+.logo{font-size:clamp(35px,7vw,66px);font-weight:1000;letter-spacing:-4px;color:#d7f5c5;text-shadow:5px 5px #397343,8px 8px #071014;line-height:1}
+.logo span{color:#ff6969}.subtitle{color:#b6c9c6;margin:14px 0 24px;line-height:1.5}
+.actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap}
+.help{font-size:12px;color:#a9c0c1;line-height:1.8;margin-top:20px}
+#shop{position:absolute;inset:0;background:rgba(4,10,14,.88);display:grid;place-items:center}
+.shopCard{width:min(780px,94vw);max-height:88vh;overflow:auto;background:#14242d;border:3px solid #607c82;padding:20px;box-shadow:10px 10px 0 #05090b}
+.shopHead{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:16px}
+.shopTabs{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0 16px}.shopTabs button{padding:9px 12px;font-size:12px}.shopTabs button.active{outline:2px solid #fff2a8;filter:brightness(1.15)}.items{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.item{border:2px solid #38535d;background:#1b303a;padding:12px;text-align:left}
+.item h3{margin:0 0 7px;color:#ffe17a}.item p{font-size:12px;color:#b5c9c9;min-height:34px}
+.item .price{color:#8be36d;font-weight:bold;margin:9px 0}
+.item button{width:100%;padding:8px}.item button:disabled{opacity:.4;cursor:not-allowed}
+#pauseHint{position:absolute;left:14px;bottom:14px;color:#c4d5d0;font-size:11px;text-shadow:1px 1px #000}
+#touchControls{display:none;position:absolute;inset:0;pointer-events:none;touch-action:none}
+.stick{position:absolute;width:116px;height:116px;border:3px solid rgba(220,245,230,.55);border-radius:50%;background:rgba(12,28,30,.38);pointer-events:auto;touch-action:none;bottom:24px}
+#moveStick{left:18px}#aimStick{right:18px}
+.knob{position:absolute;width:48px;height:48px;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%);background:rgba(139,227,109,.8);border:3px solid #e8ffe0;box-shadow:0 3px 0 rgba(0,0,0,.35)}
+.touchLabel{position:absolute;left:0;right:0;top:-22px;text-align:center;color:#eaf7ee;font-size:10px;text-shadow:1px 2px #000;font-weight:bold}
+.touchAction{position:absolute;pointer-events:auto;touch-action:none;border-radius:50%;width:66px;height:66px;padding:0;background:#ffcf58;border:3px solid #fff0b0;box-shadow:0 4px 0 #946d25;color:#182018;font-size:11px}
+#fireTouch{right:150px;bottom:42px;width:76px;height:76px;background:#ff7770;box-shadow:0 4px 0 #8e3838;color:#240d0d}
+#reloadTouch{right:162px;bottom:130px}#runTouch{left:145px;bottom:30px;background:#75cfff;box-shadow:0 4px 0 #326b91}
+@media (pointer:coarse),(max-width:800px){#touchControls{display:block}#pauseHint{display:none}#topbar{top:6px;left:6px;right:6px;gap:4px;justify-content:center}.stat{min-width:0;flex:1;padding:6px 7px}.stat small{font-size:9px;margin-bottom:2px}.stat strong{font-size:14px}.bar{height:6px;margin-top:3px}#rightHud{top:82px;right:6px;gap:4px}#rightHud .panel{padding:6px}#rightHud small{font-size:9px}#rightHud strong{font-size:12px}#bottomHud{top:82px;bottom:auto;left:6px;transform:none;display:flex;gap:5px;align-items:start}#weaponBox{min-width:112px;padding:6px}#weaponName{font-size:11px}#weaponBox strong{font-size:13px}#weaponBox small{font-size:8px}#bottomHud button{font-size:10px;padding:8px 9px}#crosshair{display:none}#toast{top:30%;font-size:17px;white-space:normal;width:90%}.card{padding:20px 14px}.logo{letter-spacing:-2px}.help{font-size:11px}}
+@media (max-width:430px){.stick{width:96px;height:96px;bottom:18px}.knob{width:42px;height:42px}#moveStick{left:10px}#aimStick{right:10px}#fireTouch{right:118px;bottom:28px;width:66px;height:66px}#reloadTouch{right:125px;bottom:105px;width:54px;height:54px}#runTouch{left:112px;bottom:20px;width:54px;height:54px}}
+#notice{position:absolute;left:50%;top:16%;transform:translateX(-50%);padding:10px 18px;background:#14242d;border:2px solid var(--gold);color:var(--gold);font-weight:bold;display:none}
+@media(max-width:650px){#topbar{gap:5px;flex-wrap:wrap}.stat{min-width:90px;padding:7px}.stat strong{font-size:15px}#rightHud{top:112px}.panel{padding:7px}#bottomHud{bottom:8px}#pauseHint{display:none}}
+</style>
+</head>
+<body>
+<div id="game">
+ <canvas id="c"></canvas>
+ <div id="hud" class="hidden">
+  <div id="topbar">
+   <div class="panel stat"><small>VIDA</small><strong id="healthText">100 / 100</strong><div class="bar"><i id="healthBar"></i></div></div>
+   <div class="panel stat"><small>OLEADA</small><strong id="waveText">1</strong></div>
+   <div class="panel stat"><small>ZOMBIES</small><strong id="killsText">0</strong></div>
+   <div class="panel stat"><small>DINERO</small><strong id="moneyText">$0</strong></div>
+  </div>
+  <div id="rightHud">
+   <div class="panel"><small>OBJETIVO</small><strong id="remainingText">0 restantes</strong></div>
+   <div class="panel"><small>ESTADO</small><strong id="statusText">EN COMBATE</strong></div>
+  </div>
+  <div id="bottomHud">
+   <div class="panel" id="weaponBox"><div id="weaponName">PISTOLA</div><div><strong id="ammoText">12 / 48</strong></div><small>CLIC IZQ. DISPARAR · R RECARGAR</small></div>
+   <button class="gold" id="shopBtn" style="pointer-events:auto">TIENDA [B]</button>
+   <button class="secondary" id="pauseBtn" style="pointer-events:auto">PAUSA [P]</button>
+  </div>
+  <div id="toast"></div><div id="crosshair"></div><div id="pauseHint">WASD: moverte · MOUSE: apuntar · CLIC: disparar · SHIFT: correr · B: tienda · P: pausa</div>
+  <div id="notice"></div>
+  <div id="touchControls"><div class="stick" id="moveStick"><span class="touchLabel">MOVER</span><div class="knob"></div></div><div class="stick" id="aimStick"><span class="touchLabel">APUNTAR</span><div class="knob"></div></div><button class="touchAction" id="fireTouch">DISPARAR</button><button class="touchAction" id="reloadTouch">RECARGAR</button><button class="touchAction" id="runTouch">CORRER</button></div>
+ </div>
+ <div id="overlay">
+  <div class="card">
+   <div class="logo">ZOMBIE <span>OUTBREAK</span></div>
+   <div class="subtitle" id="menuSubtitle">La ciudad cayó. Sobreviví a las oleadas, conseguí monedas y mejorá tu equipo.</div>
+   <div id="accountPreview" style="color:#8be36d;font-weight:bold;margin:12px 0">CUENTA: $0</div>
+   <div class="actions">
+    <button id="startBtn">JUGAR</button>
+    <button class="gold" id="menuShopBtn">TIENDA</button>
+    <button class="secondary" id="howBtn">CÓMO JUGAR</button>
+   </div>
+   <div class="help" id="helpText">WASD para moverte · Mouse para apuntar · Clic izquierdo para disparar<br>Derrotá zombies, ganá dinero y comprá armas mejores.</div>
+  </div>
+ </div>
+ <div id="shop" class="hidden">
+  <div class="shopCard">
+   <div class="shopHead"><div><h2 style="margin:0;color:#d9f5c9">🛒 ARMERÍA DE SUPERVIVENCIA</h2><small id="shopMoney">Dinero: $0</small></div><button class="secondary" id="closeShop">VOLVER</button></div>
+   <div class="shopTabs" id="shopTabs"><button data-tab="weapons" class="active">🔫 ARMAS</button><button data-tab="characters">🧍 PERSONAJES</button><button data-tab="ammo">🎒 MUNICIÓN</button><button data-tab="upgrades">❤️ MEJORAS</button></div>
+   <div class="items" id="shopItems"></div>
+   <p style="color:#a9c0c1;font-size:12px">Tu saldo, armas y personajes se guardan en este navegador.</p>
+  </div>
+ </div>
+</div>
+<script>
+(()=>{
+const canvas=document.getElementById('c'),ctx=canvas.getContext('2d');
+const $=id=>document.getElementById(id);
+let W=0,H=0,dpr=1;
+function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}
+addEventListener('resize',resize);resize();
+const keys={},mouse={x:innerWidth/2,y:innerHeight/2,down:false};
+const touchMove={x:0,y:0},touchAim={x:0,y:0};let touchFire=false,touchRun=false;
+addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase()))e.preventDefault();if(e.repeat)return;
+ if(e.key.toLowerCase()==='r')reload();if(e.key.toLowerCase()==='b')toggleShop();if(e.key.toLowerCase()==='p')togglePause();});
+addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
+canvas.addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
+canvas.addEventListener('mousedown',e=>{if(e.button===0)mouse.down=true});
+addEventListener('mouseup',e=>{if(e.button===0)mouse.down=false});
+function bindStick(id,out,isAim){const el=$(id),knob=el.querySelector('.knob');let pid=null,rect;function set(e){rect=el.getBoundingClientRect();let dx=e.clientX-(rect.left+rect.width/2),dy=e.clientY-(rect.top+rect.height/2),max=rect.width*.34,len=Math.hypot(dx,dy)||1,k=Math.min(1,max/len);out.x=dx/len*k;out.y=dy/len*k;knob.style.left=`${50+out.x*34}%`;knob.style.top=`${50+out.y*34}%`;if(isAim&&Math.hypot(out.x,out.y)>.18){let a=Math.atan2(out.y,out.x);mouse.x=W/2+Math.cos(a)*180;mouse.y=H*.66+Math.sin(a)*180;}}function end(){pid=null;out.x=out.y=0;knob.style.left='50%';knob.style.top='50%'}el.addEventListener('pointerdown',e=>{e.preventDefault();pid=e.pointerId;el.setPointerCapture(pid);set(e)});el.addEventListener('pointermove',e=>{if(pid===e.pointerId){e.preventDefault();set(e)}});el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end)}
+bindStick('moveStick',touchMove,false);bindStick('aimStick',touchAim,true);
+$('fireTouch').addEventListener('pointerdown',e=>{e.preventDefault();touchFire=true;});['pointerup','pointercancel','pointerleave'].forEach(ev=>$('fireTouch').addEventListener(ev,()=>touchFire=false));
+$('reloadTouch').addEventListener('pointerdown',e=>{e.preventDefault();reload()});$('runTouch').addEventListener('pointerdown',e=>{e.preventDefault();touchRun=true});['pointerup','pointercancel','pointerleave'].forEach(ev=>$('runTouch').addEventListener(ev,()=>touchRun=false));
+const weapons=[
+ {id:'pistol',name:'Pistola',price:0,damage:25,rate:330,mag:12,reserve:60,reload:900,spread:.035,desc:'Equilibrada. Ideal para empezar.'},
+ {id:'shotgun',name:'Escopeta',price:450,damage:18,rate:780,mag:6,reserve:30,reload:1200,pellets:6,spread:.23,desc:'Varios perdigones por disparo.'},
+ {id:'smg',name:'Subfusil',price:900,damage:14,rate:105,mag:30,reserve:150,reload:1100,spread:.09,desc:'Dispara muy rápido.'},
+ {id:'rifle',name:'Rifle táctico',price:1800,damage:38,rate:250,mag:24,reserve:120,reload:1300,spread:.025,desc:'Gran daño y buena precisión.'},
+ {id:'plasma',name:'Bláster de plasma',price:4200,damage:95,rate:620,mag:10,reserve:50,reload:1500,spread:.01,desc:'Tecnología experimental de alto daño.'}
+];
+const PROFILE_KEY='zombieOutbreakProfileV1';
+function loadProfile(){try{return JSON.parse(localStorage.getItem(PROFILE_KEY))||{}}catch(e){return {}}}
+let profile=loadProfile();
+let state='menu',shopReturnState='playing',shopTab='weapons',player, zombies=[],bullets=[],particles=[],money=Math.max(0,Number(profile.coins)||0),kills=0,wave=1,spawnLeft=0,spawnTimer=0,lastShot=0,lastTime=0,toastTimer=0,owned=new Set(profile.ownedWeapons||['pistol']),weaponId=profile.weaponId||'pistol',ammo={},cameraShake=0,worldTime=0;
+const characters=[
+ {id:'rookie',name:'Recluta',price:0,body:'#547d68',head:'#a8b89a',desc:'El superviviente clásico.'},
+ {id:'medic',name:'Médica',price:650,body:'#e8e8dc',head:'#e4b99c',desc:'Una especialista lista para ayudar.'},
+ {id:'ranger',name:'Explorador',price:1100,body:'#9b7548',head:'#d2b18b',desc:'Ropa de exploración.'},
+ {id:'shadow',name:'Sombra',price:2400,body:'#544b75',head:'#b9a9a0',desc:'Un atuendo poco común de ver.'},
+ {id:'gold',name:'Sobreviviente dorado',price:5000,body:'#d7a82f',head:'#f1d99a',desc:'Un aspecto legendario.'}
+];
+let ownedCharacters=new Set(profile.ownedCharacters||['rookie']),characterId=profile.characterId||'rookie',permanentMaxHp=Math.max(100,Number(profile.maxHp)||100);
+weapons.forEach(w=>ammo[w.id]={mag:w.mag,reserve:w.reserve});
+function saveProfile(){profile={coins:money,ownedWeapons:[...owned],weaponId,ownedCharacters:[...ownedCharacters],characterId,maxHp:permanentMaxHp};try{localStorage.setItem(PROFILE_KEY,JSON.stringify(profile))}catch(e){};const a=$('accountPreview');if(a)a.textContent='CUENTA: $'+money.toLocaleString('es-AR');}
+saveProfile();
+const rarities=[
+ {name:'COMÚN',color:'#9ee477',hp:55,speed:37,reward:10,scale:1},
+ {name:'POCO COMÚN',color:'#65c9ff',hp:85,speed:48,reward:25,scale:1.08},
+ {name:'RARO',color:'#bd8cff',hp:150,speed:34,reward:75,scale:1.2},
+ {name:'ÉPICO',color:'#ffbd58',hp:260,speed:27,reward:200,scale:1.42},
+ {name:'LEGENDARIO',color:'#ff6565',hp:420,speed:42,reward:500,scale:1.55}
+];
+function reset(){player={x:0,y:0,hp:permanentMaxHp,maxHp:permanentMaxHp,speed:190,angle:0,invuln:0};zombies=[];bullets=[];particles=[];kills=0;wave=1;spawnLeft=7;spawnTimer=1;if(!owned.has(weaponId))weaponId='pistol';weapons.forEach(w=>ammo[w.id]={mag:w.mag,reserve:w.reserve});saveProfile();}
+function currentWeapon(){return weapons.find(w=>w.id===weaponId)}
+function start(){reset();state='playing';$('overlay').classList.add('hidden');$('hud').classList.remove('hidden');$('shop').classList.add('hidden');showToast('OLEADA 1 · ¡SOBREVIVÍ!');lastTime=performance.now()}
+function showToast(t){$('toast').textContent=t;toastTimer=1.8}
+function notice(t){$('notice').textContent=t;$('notice').style.display='block';setTimeout(()=>$('notice').style.display='none',1700)}
+function togglePause(){if(state==='playing'){state='paused';$('overlay').classList.remove('hidden');$('menuSubtitle').textContent='PARTIDA EN PAUSA';$('startBtn').textContent='CONTINUAR';$('helpText').textContent='Tu progreso de esta partida se conserva mientras la pestaña siga abierta.'}else if(state==='paused'){state='playing';$('overlay').classList.add('hidden');lastTime=performance.now()}}
+function toggleShop(){if(state==='shop'){state=shopReturnState;$('shop').classList.add('hidden');lastTime=performance.now();return}shopReturnState=state;state='shop';$('shop').classList.remove('hidden');renderShop()}
+function renderShop(){
+ $('shopMoney').textContent='Saldo de tu cuenta: $'+money.toLocaleString('es-AR');
+ $('shopItems').innerHTML='';
+ document.querySelectorAll('#shopTabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===shopTab));
+ const addCard=(title,desc,price,buttonText,disabled,action)=>{const div=document.createElement('div');div.className='item';div.innerHTML=`<h3>${title}</h3><p>${desc}</p><div class="price">${price}</div><button ${disabled?'disabled':''}>${buttonText}</button>`;div.querySelector('button').onclick=()=>{action();renderShop();updateHud();saveProfile()};$('shopItems').appendChild(div)};
+ if(shopTab==='weapons')weapons.forEach(w=>{const isOwned=owned.has(w.id),equipped=weaponId===w.id;addCard('🔫 '+w.name,w.desc+'<br>Daño: '+w.damage+' · Cargador: '+w.mag,w.price===0?'INICIAL':'$'+w.price.toLocaleString('es-AR'),equipped?'EQUIPADA':isOwned?'EQUIPAR':'COMPRAR',equipped||(!isOwned&&money<w.price),()=>{if(isOwned){weaponId=w.id;notice(w.name+' equipada')}else if(money>=w.price){money-=w.price;owned.add(w.id);weaponId=w.id;notice('¡Compraste '+w.name+'!')}})});
+ if(shopTab==='characters')characters.forEach(c=>{const isOwned=ownedCharacters.has(c.id),equipped=characterId===c.id;addCard('🧍 '+c.name,c.desc,'$'+c.price.toLocaleString('es-AR'),equipped?'EQUIPADO':isOwned?'EQUIPAR':'DESBLOQUEAR',equipped||(!isOwned&&money<c.price),()=>{if(isOwned){characterId=c.id;notice(c.name+' equipado')}else if(money>=c.price){money-=c.price;ownedCharacters.add(c.id);characterId=c.id;notice('¡Nuevo personaje desbloqueado!')}})});
+ if(shopTab==='ammo'){
+  const w=currentWeapon(),a=ammo[w.id];
+  if(!player){addCard('🎒 Munición','Iniciá una partida para comprar balas para tu arma actual.','Disponible durante la partida','JUGAR',true,()=>{});return}
+  addCard('🎒 Caja de munición','Agrega 60 balas de reserva para '+w.name+'.',' $120','COMPRAR',money<120,()=>{money-=120;a.reserve+=60;notice('+60 balas para '+w.name)});
+  addCard('📦 Cargador completo','Rellena el cargador actual de '+w.name+'.','$55','RELLENAR',money<55||a.mag===w.mag,()=>{money-=55;a.mag=w.mag;notice('Cargador rellenado')});
+ }
+ if(shopTab==='upgrades'){
+  addCard('❤️ Botiquín','Recupera 40 puntos de vida. Disponible durante una partida.','$100','COMPRAR',money<100||!player||player.hp>=player.maxHp,()=>{money-=100;player.hp=Math.min(player.maxHp,player.hp+40);notice('¡Vida recuperada!')});
+  addCard('🛡️ Chaleco reforzado','Aumenta permanentemente tu vida máxima en 20 puntos.','$1.500','MEJORAR',money<1500||permanentMaxHp>=200,()=>{money-=1500;permanentMaxHp=Math.min(200,permanentMaxHp+20);if(player){player.maxHp=permanentMaxHp;player.hp=Math.min(player.maxHp,player.hp+20)}notice('¡Vida máxima aumentada!')});
+ }
+}
+document.querySelectorAll('#shopTabs button').forEach(b=>b.addEventListener('click',()=>{shopTab=b.dataset.tab;renderShop()}));
+$('shopBtn').onclick=toggleShop;$('menuShopBtn').onclick=toggleShop;$('closeShop').onclick=toggleShop;$('pauseBtn').onclick=togglePause;
+$('startBtn').onclick=()=>{if(state==='paused')togglePause();else start()};
+// En pantallas táctiles, la armería y pausa permanecen accesibles desde el HUD.
+$('howBtn').onclick=()=>{$('helpText').innerHTML='WASD: moverte · Mouse: apuntar · Clic izquierdo: disparar<br>SHIFT: correr · R: recargar · B: tienda · P: pausa';};
+function reload(){if(state!=='playing')return;let w=currentWeapon(),a=ammo[w.id];if(a.mag===w.mag||a.reserve<=0)return;showToast('RECARGANDO...');setTimeout(()=>{if(state!=='playing')return;let n=Math.min(w.mag-a.mag,a.reserve);a.mag+=n;a.reserve-=n;updateHud()},w.reload)}
+function spawnZombie(){
+ let angle=Math.random()*Math.PI*2,dist=Math.max(W,H)*.65+100;
+ let x=player.x+Math.cos(angle)*dist,y=player.y+Math.sin(angle)*dist;
+ let r=Math.random(),idx=r<.62?0:r<.82?1:r<.94?2:r<.99?3:4;
+ if(wave>=4&&Math.random()<.08)idx=Math.max(idx,2);
+ const base=rarities[idx],mult=1+(wave-1)*.13;
+ zombies.push({x,y,hp:base.hp*mult,maxHp:base.hp*mult,speed:base.speed*(1+(wave-1)*.025),reward:base.reward,rarity:base,scale:base.scale,attack:0,hit:0,phase:Math.random()*6});
+}
+function shoot(){
+ let w=currentWeapon(),a=ammo[w.id],now=performance.now();if(now-lastShot<w.rate||a.mag<=0)return;
+ lastShot=now;a.mag--;let base=Math.atan2(mouse.y-H*.66,mouse.x-W/2);
+ let count=w.pellets||1;
+ for(let i=0;i<count;i++){let ang=base+(Math.random()-.5)*w.spread;bullets.push({x:player.x+Math.cos(ang)*18,y:player.y+Math.sin(ang)*18,vx:Math.cos(ang)*650,vy:Math.sin(ang)*650,damage:w.damage,life:1.2,color:w.id==='plasma'?'#69efff':'#ffe6a1'})}
+ particles.push({x:player.x+Math.cos(base)*24,y:player.y+Math.sin(base)*24,life:.09,max:.09,color:'#fff2b0',size:13});
+ cameraShake=2;updateHud();
+}
+function addBurst(x,y,color,n=8){for(let i=0;i<n;i++){let a=Math.random()*Math.PI*2,s=30+Math.random()*130;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.25+Math.random()*.4,max:.65,color,size:2+Math.random()*4})}}
+function update(dt){
+ worldTime+=dt;
+ let dx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+touchMove.x,dy=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+touchMove.y,len=Math.hypot(dx,dy)||1;
+ let speed=player.speed*(keys.shift||touchRun?1.45:1);player.x+=dx/len*speed*dt;player.y+=dy/len*speed*dt;
+ player.angle=Math.atan2(mouse.y-H*.66,mouse.x-W/2);
+ player.invuln=Math.max(0,player.invuln-dt);
+ if(mouse.down||touchFire)shoot();
+ if(spawnLeft>0){spawnTimer-=dt;if(spawnTimer<=0){spawnZombie();spawnLeft--;spawnTimer=Math.max(.28,1.15-wave*.045)}}
+ else if(zombies.length===0){wave++;spawnLeft=6+wave*3;spawnTimer=2;player.hp=Math.min(player.maxHp,player.hp+12);showToast('¡OLEADA '+wave+'! +12 VIDA')}
+ bullets.forEach(b=>{b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt});
+ bullets=bullets.filter(b=>b.life>0);
+ for(let z of zombies){
+  let a=Math.atan2(player.y-z.y,player.x-z.x),d=Math.hypot(player.x-z.x,player.y-z.y);
+  if(d>27){z.x+=Math.cos(a)*z.speed*dt;z.y+=Math.sin(a)*z.speed*dt}
+  z.attack-=dt;z.hit=Math.max(0,z.hit-dt);
+  if(d<35&&z.attack<=0&&player.invuln<=0){player.hp-=8+wave*.7;player.invuln=.55;z.attack=.85;cameraShake=5;addBurst(player.x,player.y,'#ff6464',5);if(player.hp<=0)gameOver()}
+ }
+ for(let b of bullets){for(let z of zombies){if(z.hp>0&&Math.hypot(z.x-b.x,z.y-b.y)<19*z.scale){z.hp-=b.damage;z.hit=.1;b.life=0;addBurst(b.x,b.y,b.color,3);if(z.hp<=0){money+=z.reward;kills++;saveProfile();addBurst(z.x,z.y,z.rarity.color,14);showToast('+'+z.reward+' MONEDAS · '+z.rarity.name)}break}}}
+ zombies=zombies.filter(z=>z.hp>0);
+ particles.forEach(p=>{p.x+=(p.vx||0)*dt;p.y+=(p.vy||0)*dt;p.life-=dt});
+ particles=particles.filter(p=>p.life>0);
+ cameraShake=Math.max(0,cameraShake-dt*18);if(toastTimer>0){toastTimer-=dt;if(toastTimer<=0)$('toast').textContent=''}
+ updateHud();
+}
+function updateHud(){if(!player){const a=$('accountPreview');if(a)a.textContent='CUENTA: $'+money.toLocaleString('es-AR');return;}$('healthText').textContent=Math.max(0,Math.ceil(player.hp))+' / '+player.maxHp;$('healthBar').style.width=Math.max(0,player.hp/player.maxHp*100)+'%';$('healthBar').style.background=player.hp<30?'#ff6868':'#8be36d';$('waveText').textContent=wave;$('killsText').textContent=kills;$('moneyText').textContent='$'+money.toLocaleString('es-AR');$('remainingText').textContent=(spawnLeft+zombies.length)+' restantes';$('ammoText').textContent=ammo[weaponId].mag+' / '+ammo[weaponId].reserve;$('weaponName').textContent=currentWeapon().name.toUpperCase()}
+function gameOver(){saveProfile();state='over';$('overlay').classList.remove('hidden');$('menuSubtitle').innerHTML=`TE ALCANZARON...<br>Sobreviviste hasta la oleada ${wave}. Eliminaste ${kills} zombies.<br>Saldo guardado: $${money.toLocaleString('es-AR')}.`;$('startBtn').textContent='VOLVER A JUGAR';$('helpText').textContent='Cada partida empieza desde cero. ¡Probá llegar más lejos!'}
+function draw(){
+ ctx.clearRect(0,0,W,H);
+ if(!player){drawMenuBg();return}
+ let shakeX=(Math.random()-.5)*cameraShake,shakeY=(Math.random()-.5)*cameraShake;
+ // Cámara detrás del personaje: el mundo se desplaza según su posición y orientación.
+ ctx.save();ctx.translate(W/2-player.x+shakeX,H*.66-player.y+shakeY);
+ drawWorld();
+ // proyectiles
+ for(let b of bullets){ctx.fillStyle=b.color;ctx.fillRect(b.x-3,b.y-3,7,7)}
+ // zombies
+ zombies.sort((a,b)=>a.y-b.y).forEach(drawZombie);
+ particles.forEach(p=>{ctx.globalAlpha=Math.max(0,p.life/p.max);ctx.fillStyle=p.color;ctx.fillRect(p.x-p.size/2,p.y-p.size/2,p.size,p.size)});ctx.globalAlpha=1;
+ drawPlayer();
+ ctx.restore();
+ // crosshair
+ $('crosshair').style.left=mouse.x+'px';$('crosshair').style.top=mouse.y+'px';
+}
+function drawWorld(){
+ const tile=64,left=player.x-W/2-100,top=player.y-H*.66-100,right=left+W+200,bottom=top+H+200;
+ ctx.fillStyle='#233b31';ctx.fillRect(left,top,right-left,bottom-top);
+ for(let x=Math.floor(left/tile)*tile;x<right;x+=tile)for(let y=Math.floor(top/tile)*tile;y<bottom;y+=tile){
+  let n=(Math.floor(x/tile)*17+Math.floor(y/tile)*31)%7;ctx.fillStyle=n===0?'#294333':n===1?'#20392f':'#263f34';ctx.fillRect(x,y,tile-2,tile-2);
+  if(n===2){ctx.fillStyle='#3c5140';ctx.fillRect(x+15,y+18,3,3);ctx.fillRect(x+42,y+45,4,3)}
+ }
+ // camino de bloques
+ ctx.fillStyle='#414844';ctx.fillRect(-300,-130,W+600,110);ctx.fillRect(240,-500,110,H+1000);
+ ctx.fillStyle='#5b6057';for(let x=-300;x<W+500;x+=80)ctx.fillRect(x,-78,35,4);
+ // edificios y obstáculos
+ for(let i=-3;i<5;i++){let x=i*260+110,y=-310;drawBuilding(x,y,130,150);drawBuilding(x+90,280,110,125)}
+ // árboles decorativos
+ for(let i=-5;i<6;i++){tree(i*190-90,-210+(i%2)*65);tree(i*190+30,310+(i%3)*25)}
+}
+function drawBuilding(x,y,w,h){ctx.fillStyle='#121d20';ctx.fillRect(x+8,y+9,w,h);ctx.fillStyle='#59615a';ctx.fillRect(x,y,w,h);ctx.fillStyle='#73796a';ctx.fillRect(x+7,y+7,w-14,h-14);ctx.fillStyle='#28383a';ctx.fillRect(x+18,y+18,25,25);ctx.fillRect(x+w-43,y+18,25,25);ctx.fillStyle='#302c27';ctx.fillRect(x+w/2-14,y+h-35,28,35);ctx.fillStyle='#9a6c4c';ctx.fillRect(x+w/2-14,y+h-35,28,5)}
+function tree(x,y){ctx.fillStyle='#17251e';ctx.fillRect(x-5,y+12,12,20);ctx.fillStyle='#315b3d';ctx.fillRect(x-19,y-8,38,30);ctx.fillStyle='#47764a';ctx.fillRect(x-11,y-16,22,14);ctx.fillStyle='#1d422f';ctx.fillRect(x+5,y+1,9,9)}
+function drawZombie(z){
+ ctx.save();ctx.translate(z.x,z.y);let sc=z.scale;ctx.scale(sc,sc);
+ ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(-12,8,25,8);
+ ctx.fillStyle=z.hit>0?'#fff':z.rarity.color;ctx.fillRect(-10,-15,20,26);
+ ctx.fillStyle='#4c6047';ctx.fillRect(-8,-25,16,14);ctx.fillStyle='#d94d48';ctx.fillRect(-6,-20,3,3);ctx.fillRect(3,-20,3,3);
+ ctx.fillStyle='#26352a';ctx.fillRect(-13,-7,5,16);ctx.fillRect(8,-7,5,16);ctx.fillRect(-8,10,6,8);ctx.fillRect(3,10,6,8);
+ ctx.fillStyle='#f4e6ba';ctx.fillRect(-4,-9,8,3);
+ ctx.fillStyle='#101a19';ctx.fillRect(-14,-34,28,4);ctx.fillStyle=z.rarity.color;ctx.fillRect(-14,-34,28*Math.max(0,z.hp/z.maxHp),4);
+ if(z.rarity.reward>=75){ctx.fillStyle=z.rarity.color;ctx.font='9px monospace';ctx.textAlign='center';ctx.fillText(z.rarity.name,z.x===undefined?0:0,-39)}
+ ctx.restore();
+}
+function drawPlayer(){
+ ctx.save();ctx.translate(player.x,player.y);ctx.rotate(player.angle);
+ ctx.fillStyle='rgba(0,0,0,.4)';ctx.fillRect(-14,13,30,9);
+ // cuerpo y mochila, orientado hacia el mouse
+ const avatar=characters.find(c=>c.id===characterId)||characters[0];ctx.fillStyle='#263a45';ctx.fillRect(-12,-10,24,25);ctx.fillStyle=avatar.body;ctx.fillRect(-10,-13,20,21);
+ ctx.fillStyle=avatar.head;ctx.fillRect(-8,-23,16,13);ctx.fillStyle='#222b2c';ctx.fillRect(-5,-20,3,3);ctx.fillRect(3,-20,3,3);
+ ctx.fillStyle='#9a7954';ctx.fillRect(-15,-5,6,15);ctx.fillRect(9,-5,6,15);
+ ctx.fillStyle='#d4d7c5';ctx.fillRect(7,-5,24,5);ctx.fillStyle='#6b7770';ctx.fillRect(23,-7,8,9);
+ ctx.fillStyle='#182328';ctx.fillRect(-9,13,7,8);ctx.fillRect(3,13,7,8);
+ ctx.restore();
+}
+function drawMenuBg(){ctx.fillStyle='#172a25';ctx.fillRect(0,0,W,H);for(let i=0;i<90;i++){let x=(i*137)%W,y=(i*83)%H;ctx.fillStyle=i%3?'#294333':'#36513b';ctx.fillRect(x,y,4,4)}}
+function loop(now){let dt=Math.min((now-lastTime)/1000||0,.04);lastTime=now;if(state==='playing')update(dt);draw();requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
