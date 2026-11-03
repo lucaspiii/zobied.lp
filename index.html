@@ -51,6 +51,26 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated;cursor:cro
 @media (max-width:430px){.stick{width:96px;height:96px;bottom:18px}.knob{width:42px;height:42px}#moveStick{left:10px}#aimStick{right:10px}#fireTouch{right:118px;bottom:28px;width:66px;height:66px}#reloadTouch{right:125px;bottom:105px;width:54px;height:54px}#runTouch{left:112px;bottom:20px;width:54px;height:54px}}
 #notice{position:absolute;left:50%;top:16%;transform:translateX(-50%);padding:10px 18px;background:#14242d;border:2px solid var(--gold);color:var(--gold);font-weight:bold;display:none}
 @media(max-width:650px){#topbar{gap:5px;flex-wrap:wrap}.stat{min-width:90px;padding:7px}.stat strong{font-size:15px}#rightHud{top:112px}.panel{padding:7px}#bottomHud{bottom:8px}#pauseHint{display:none}}
+
+.character-item{display:flex;flex-direction:column;min-height:100%;padding:10px}
+.character-art{height:145px;margin:-1px -1px 10px;display:grid;place-items:center;overflow:hidden;background:linear-gradient(180deg,#29433e,#14262c);border:1px solid #45616a}
+.character-art svg{height:138px;width:100%;max-width:180px;image-rendering:pixelated;filter:drop-shadow(0 5px 0 rgba(0,0,0,.3))}
+.rarity-tag{display:inline-block;align-self:flex-start;padding:4px 7px;margin-bottom:8px;font-size:10px;font-weight:900;color:#101820}
+.character-item h3{margin:0 0 6px;color:#ffe17a;font-size:16px}
+.character-item p{flex:1;min-height:32px}
+.character-item .price{margin:8px 0 10px}
+.character-item button{margin-top:auto}
+#leaderboard{position:absolute;inset:0;z-index:8;background:rgba(3,9,12,.94);display:grid;place-items:center;padding:14px}
+.leader-card{width:min(680px,94vw);max-height:88vh;overflow:auto;padding:20px;background:#14242d;border:3px solid #607c82;box-shadow:10px 10px #05090b}
+.leader-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.leader-head h2{margin:0;color:#ffe17a}
+.leader-table{width:100%;border-collapse:collapse;font-size:13px}
+.leader-table th,.leader-table td{padding:10px 7px;text-align:left;border-bottom:1px solid #38535d}
+.leader-table th{color:#8be36d}
+.leader-table td:first-child{color:#ffd45a;font-weight:bold}
+.leader-empty{text-align:center;padding:22px;color:#b5c9c9}
+@media(max-width:500px){.character-art{height:125px}.character-art svg{height:120px}.items{grid-template-columns:repeat(auto-fit,minmax(145px,1fr))}.leader-table{font-size:11px}.leader-table th,.leader-table td{padding:8px 4px}}
+
 </style>
 </head>
 <body>
@@ -85,8 +105,17 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated;cursor:cro
     <button id="startBtn">JUGAR</button>
     <button class="gold" id="menuShopBtn">TIENDA</button>
     <button class="secondary" id="howBtn">CÓMO JUGAR</button>
+    <button class="secondary" id="recordsBtn">🏆 PUNTUACIONES</button>
    </div>
    <div class="help" id="helpText">WASD para moverte · Mouse para apuntar · Clic izquierdo para disparar<br>Derrotá zombies, ganá dinero y comprá armas mejores.</div>
+  </div>
+ </div>
+
+ <div id="leaderboard" class="hidden">
+  <div class="leader-card">
+   <div class="leader-head"><h2>🏆 TABLA DE PUNTUACIONES</h2><button class="secondary" id="closeRecords">VOLVER</button></div>
+   <p style="color:#b5c9c9;font-size:12px">Mejores partidas guardadas en este dispositivo.</p>
+   <div id="leaderRows"></div>
   </div>
  </div>
  <div id="shop" class="hidden">
@@ -129,11 +158,11 @@ function loadProfile(){try{return JSON.parse(localStorage.getItem(PROFILE_KEY))|
 let profile=loadProfile();
 let state='menu',shopReturnState='playing',shopTab='weapons',player, zombies=[],bullets=[],particles=[],money=Math.max(0,Number(profile.coins)||0),kills=0,wave=1,spawnLeft=0,spawnTimer=0,lastShot=0,lastTime=0,toastTimer=0,owned=new Set(profile.ownedWeapons||['pistol']),weaponId=profile.weaponId||'pistol',ammo={},cameraShake=0,worldTime=0;
 const characters=[
- {id:'rookie',name:'Recluta',price:0,body:'#547d68',head:'#a8b89a',desc:'El superviviente clásico.'},
- {id:'medic',name:'Médica',price:650,body:'#e8e8dc',head:'#e4b99c',desc:'Una especialista lista para ayudar.'},
- {id:'ranger',name:'Explorador',price:1100,body:'#9b7548',head:'#d2b18b',desc:'Ropa de exploración.'},
- {id:'shadow',name:'Sombra',price:2400,body:'#544b75',head:'#b9a9a0',desc:'Un atuendo poco común de ver.'},
- {id:'gold',name:'Sobreviviente dorado',price:5000,body:'#d7a82f',head:'#f1d99a',desc:'Un aspecto legendario.'}
+ {id:'rookie',name:'Recluta',price:0,body:'#547d68',head:'#a8b89a',desc:'El superviviente clásico.',rarity:'COMÚN',rarityColor:'#9ee477',accent:'#344d42'},
+ {id:'medic',name:'Médica',price:650,body:'#e8e8dc',head:'#e4b99c',desc:'Especialista preparada para ayudar.',rarity:'POCO COMÚN',rarityColor:'#65c9ff',accent:'#c94f55'},
+ {id:'ranger',name:'Explorador',price:1100,body:'#9b7548',head:'#d2b18b',desc:'Ropa resistente para explorar.',rarity:'RARO',rarityColor:'#bd8cff',accent:'#455c35'},
+ {id:'shadow',name:'Sombra',price:2400,body:'#544b75',head:'#b9a9a0',desc:'Un atuendo difícil de encontrar.',rarity:'ÉPICO',rarityColor:'#ffbd58',accent:'#252338'},
+ {id:'gold',name:'Sobreviviente dorado',price:5000,body:'#d7a82f',head:'#f1d99a',desc:'Un aspecto legendario.',rarity:'LEGENDARIO',rarityColor:'#ff6565',accent:'#fff0a1'}
 ];
 let ownedCharacters=new Set(profile.ownedCharacters||['rookie']),characterId=profile.characterId||'rookie',permanentMaxHp=Math.max(100,Number(profile.maxHp)||100);
 weapons.forEach(w=>ammo[w.id]={mag:w.mag,reserve:w.reserve});
@@ -146,20 +175,39 @@ const rarities=[
  {name:'ÉPICO',color:'#ffbd58',hp:260,speed:27,reward:200,scale:1.42},
  {name:'LEGENDARIO',color:'#ff6565',hp:420,speed:42,reward:500,scale:1.55}
 ];
-function reset(){player={x:0,y:0,hp:permanentMaxHp,maxHp:permanentMaxHp,speed:190,angle:0,invuln:0};zombies=[];bullets=[];particles=[];kills=0;wave=1;spawnLeft=7;spawnTimer=1;if(!owned.has(weaponId))weaponId='pistol';weapons.forEach(w=>ammo[w.id]={mag:w.mag,reserve:w.reserve});saveProfile();}
+function reset(){player={x:0,y:0,hp:permanentMaxHp,maxHp:permanentMaxHp,speed:190,angle:0,facing:1,invuln:0};zombies=[];bullets=[];particles=[];kills=0;wave=1;spawnLeft=7;spawnTimer=1;if(!owned.has(weaponId))weaponId='pistol';weapons.forEach(w=>ammo[w.id]={mag:w.mag,reserve:w.reserve});saveProfile();}
 function currentWeapon(){return weapons.find(w=>w.id===weaponId)}
 function start(){reset();state='playing';$('overlay').classList.add('hidden');$('hud').classList.remove('hidden');$('shop').classList.add('hidden');showToast('OLEADA 1 · ¡SOBREVIVÍ!');lastTime=performance.now()}
 function showToast(t){$('toast').textContent=t;toastTimer=1.8}
 function notice(t){$('notice').textContent=t;$('notice').style.display='block';setTimeout(()=>$('notice').style.display='none',1700)}
 function togglePause(){if(state==='playing'){state='paused';$('overlay').classList.remove('hidden');$('menuSubtitle').textContent='PARTIDA EN PAUSA';$('startBtn').textContent='CONTINUAR';$('helpText').textContent='Tu progreso de esta partida se conserva mientras la pestaña siga abierta.'}else if(state==='paused'){state='playing';$('overlay').classList.add('hidden');lastTime=performance.now()}}
 function toggleShop(){if(state==='shop'){state=shopReturnState;$('shop').classList.add('hidden');lastTime=performance.now();return}shopReturnState=state;state='shop';$('shop').classList.remove('hidden');renderShop()}
+function characterSprite(c){
+ const medic=c.id==='medic',ranger=c.id==='ranger',shadow=c.id==='shadow',gold=c.id==='gold';
+ return `<svg viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges" aria-label="${c.name}">
+ <ellipse cx="64" cy="116" rx="30" ry="6" fill="#091217" opacity=".55"/>
+ <rect x="39" y="76" width="50" height="31" fill="#18252b"/><rect x="44" y="73" width="40" height="34" fill="${c.body}"/><rect x="48" y="78" width="32" height="23" fill="${c.accent}" opacity=".35"/>
+ <rect x="36" y="79" width="12" height="28" fill="${c.body}"/><rect x="80" y="79" width="12" height="28" fill="${c.body}"/><rect x="47" y="104" width="14" height="12" fill="#29343a"/><rect x="68" y="104" width="14" height="12" fill="#29343a"/>
+ <rect x="49" y="37" width="30" height="38" fill="${c.head}"/><rect x="44" y="45" width="40" height="25" fill="${c.head}"/><rect x="48" y="55" width="8" height="5" fill="#26332e"/><rect x="72" y="55" width="8" height="5" fill="#26332e"/><rect x="58" y="67" width="13" height="4" fill="#8f4d46"/>
+ ${ranger?'<rect x="39" y="33" width="50" height="8" fill="#57412e"/><rect x="48" y="22" width="32" height="13" fill="#80603b"/>':''}
+ ${medic?'<rect x="54" y="82" width="20" height="5" fill="#c94f55"/><rect x="61" y="75" width="6" height="20" fill="#c94f55"/><rect x="59" y="26" width="10" height="6" fill="#f4f2e7"/>':''}
+ ${shadow?'<rect x="43" y="27" width="42" height="15" fill="#29253e"/><rect x="47" y="20" width="34" height="10" fill="#393252"/><rect x="44" y="43" width="8" height="25" fill="#29253e"/><rect x="76" y="43" width="8" height="25" fill="#29253e"/>':''}
+ ${gold?'<rect x="45" y="25" width="38" height="8" fill="#e9b934"/><rect x="49" y="14" width="7" height="13" fill="#fff0a1"/><rect x="61" y="10" width="7" height="17" fill="#fff0a1"/><rect x="73" y="14" width="7" height="13" fill="#fff0a1"/><rect x="48" y="81" width="32" height="6" fill="#fff0a1"/>':''}
+ <rect x="86" y="72" width="7" height="29" fill="#9a7954"/><rect x="91" y="67" width="7" height="25" fill="#c7d2c6"/></svg>`;
+}
 function renderShop(){
  $('shopMoney').textContent='Saldo de tu cuenta: $'+money.toLocaleString('es-AR');
  $('shopItems').innerHTML='';
  document.querySelectorAll('#shopTabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===shopTab));
  const addCard=(title,desc,price,buttonText,disabled,action)=>{const div=document.createElement('div');div.className='item';div.innerHTML=`<h3>${title}</h3><p>${desc}</p><div class="price">${price}</div><button ${disabled?'disabled':''}>${buttonText}</button>`;div.querySelector('button').onclick=()=>{action();renderShop();updateHud();saveProfile()};$('shopItems').appendChild(div)};
  if(shopTab==='weapons')weapons.forEach(w=>{const isOwned=owned.has(w.id),equipped=weaponId===w.id;addCard('🔫 '+w.name,w.desc+'<br>Daño: '+w.damage+' · Cargador: '+w.mag,w.price===0?'INICIAL':'$'+w.price.toLocaleString('es-AR'),equipped?'EQUIPADA':isOwned?'EQUIPAR':'COMPRAR',equipped||(!isOwned&&money<w.price),()=>{if(isOwned){weaponId=w.id;notice(w.name+' equipada')}else if(money>=w.price){money-=w.price;owned.add(w.id);weaponId=w.id;notice('¡Compraste '+w.name+'!')}})});
- if(shopTab==='characters')characters.forEach(c=>{const isOwned=ownedCharacters.has(c.id),equipped=characterId===c.id;addCard('🧍 '+c.name,c.desc,'$'+c.price.toLocaleString('es-AR'),equipped?'EQUIPADO':isOwned?'EQUIPAR':'DESBLOQUEAR',equipped||(!isOwned&&money<c.price),()=>{if(isOwned){characterId=c.id;notice(c.name+' equipado')}else if(money>=c.price){money-=c.price;ownedCharacters.add(c.id);characterId=c.id;notice('¡Nuevo personaje desbloqueado!')}})});
+ if(shopTab==='characters')characters.forEach(c=>{
+  const isOwned=ownedCharacters.has(c.id),equipped=characterId===c.id;
+  const div=document.createElement('div');div.className='item character-item';
+  div.innerHTML=`<div class="character-art">${characterSprite(c)}</div><span class="rarity-tag" style="background:${c.rarityColor}">${c.rarity}</span><h3>${c.name}</h3><p>${c.desc}</p><div class="price">${c.price===0?'GRATIS':'$'+c.price.toLocaleString('es-AR')}</div><button ${equipped||(!isOwned&&money<c.price)?'disabled':''}>${equipped?'EQUIPADO':isOwned?'EQUIPAR':'DESBLOQUEAR'}</button>`;
+  div.querySelector('button').onclick=()=>{if(isOwned){characterId=c.id;notice(c.name+' equipado')}else if(money>=c.price){money-=c.price;ownedCharacters.add(c.id);characterId=c.id;notice('¡Nuevo personaje desbloqueado!')}renderShop();updateHud();saveProfile()};
+  $('shopItems').appendChild(div);
+ });
  if(shopTab==='ammo'){
   const w=currentWeapon(),a=ammo[w.id];
   if(!player){addCard('🎒 Munición','Iniciá una partida para comprar balas para tu arma actual.','Disponible durante la partida','JUGAR',true,()=>{});return}
@@ -172,6 +220,21 @@ function renderShop(){
  }
 }
 document.querySelectorAll('#shopTabs button').forEach(b=>b.addEventListener('click',()=>{shopTab=b.dataset.tab;renderShop()}));
+const BOARD_KEY='zombieOutbreakLeaderboardV1';
+function readLeaderboard(){try{return JSON.parse(localStorage.getItem(BOARD_KEY))||[]}catch(e){return []}}
+function saveRun(){
+ const board=readLeaderboard(),score=wave*100+kills*10;
+ const name=localStorage.getItem('zombieOutbreakPlayerName')||'Superviviente';
+ board.push({name,wave,kills,score,date:new Date().toLocaleDateString('es-AR')});
+ board.sort((a,b)=>b.score-a.score||b.wave-a.wave||b.kills-a.kills);
+ try{localStorage.setItem(BOARD_KEY,JSON.stringify(board.slice(0,10)))}catch(e){}
+}
+function renderLeaderboard(){
+ const rows=readLeaderboard();
+ $('leaderRows').innerHTML=rows.length?`<table class="leader-table"><thead><tr><th>#</th><th>JUGADOR</th><th>OLEADA</th><th>ZOMBIES</th><th>PUNTOS</th></tr></thead><tbody>${rows.map((r,i)=>`<tr><td>${i+1}</td><td>${r.name}</td><td>${r.wave}</td><td>${r.kills}</td><td>${r.score.toLocaleString('es-AR')}</td></tr>`).join('')}</tbody></table>`:'<div class="leader-empty">Todavía no hay partidas registradas. ¡Jugá una partida para estrenar el ranking!</div>';
+}
+$('recordsBtn').onclick=()=>{$('leaderboard').classList.remove('hidden');renderLeaderboard()};
+$('closeRecords').onclick=()=>$('leaderboard').classList.add('hidden');
 $('shopBtn').onclick=toggleShop;$('menuShopBtn').onclick=toggleShop;$('closeShop').onclick=toggleShop;$('pauseBtn').onclick=togglePause;
 $('startBtn').onclick=()=>{if(state==='paused')togglePause();else start()};
 // En pantallas táctiles, la armería y pausa permanecen accesibles desde el HUD.
@@ -198,7 +261,7 @@ function update(dt){
  worldTime+=dt;
  let dx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+touchMove.x,dy=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+touchMove.y,len=Math.hypot(dx,dy)||1;
  let speed=player.speed*(keys.shift||touchRun?1.45:1);player.x+=dx/len*speed*dt;player.y+=dy/len*speed*dt;
- player.angle=Math.atan2(mouse.y-H*.66,mouse.x-W/2);
+ player.angle=Math.atan2(mouse.y-H*.66,mouse.x-W/2);player.facing=mouse.x>=W/2?1:-1;
  player.invuln=Math.max(0,player.invuln-dt);
  if(mouse.down||touchFire)shoot();
  if(spawnLeft>0){spawnTimer-=dt;if(spawnTimer<=0){spawnZombie();spawnLeft--;spawnTimer=Math.max(.28,1.15-wave*.045)}}
@@ -219,7 +282,7 @@ function update(dt){
  updateHud();
 }
 function updateHud(){if(!player){const a=$('accountPreview');if(a)a.textContent='CUENTA: $'+money.toLocaleString('es-AR');return;}$('healthText').textContent=Math.max(0,Math.ceil(player.hp))+' / '+player.maxHp;$('healthBar').style.width=Math.max(0,player.hp/player.maxHp*100)+'%';$('healthBar').style.background=player.hp<30?'#ff6868':'#8be36d';$('waveText').textContent=wave;$('killsText').textContent=kills;$('moneyText').textContent='$'+money.toLocaleString('es-AR');$('remainingText').textContent=(spawnLeft+zombies.length)+' restantes';$('ammoText').textContent=ammo[weaponId].mag+' / '+ammo[weaponId].reserve;$('weaponName').textContent=currentWeapon().name.toUpperCase()}
-function gameOver(){saveProfile();state='over';$('overlay').classList.remove('hidden');$('menuSubtitle').innerHTML=`TE ALCANZARON...<br>Sobreviviste hasta la oleada ${wave}. Eliminaste ${kills} zombies.<br>Saldo guardado: $${money.toLocaleString('es-AR')}.`;$('startBtn').textContent='VOLVER A JUGAR';$('helpText').textContent='Cada partida empieza desde cero. ¡Probá llegar más lejos!'}
+function gameOver(){saveProfile();saveRun();state='over';$('overlay').classList.remove('hidden');$('menuSubtitle').innerHTML=`TE ALCANZARON...<br>Sobreviviste hasta la oleada ${wave}. Eliminaste ${kills} zombies.<br>Saldo guardado: $${money.toLocaleString('es-AR')}.`;$('startBtn').textContent='VOLVER A JUGAR';$('helpText').textContent='Cada partida empieza desde cero. ¡Probá llegar más lejos!'}
 function draw(){
  ctx.clearRect(0,0,W,H);
  if(!player){drawMenuBg();return}
@@ -266,15 +329,22 @@ function drawZombie(z){
  ctx.restore();
 }
 function drawPlayer(){
- ctx.save();ctx.translate(player.x,player.y);ctx.rotate(player.angle);
+ const avatar=characters.find(c=>c.id===characterId)||characters[0];
+ // El cuerpo mira a izquierda o derecha según el mouse; no gira de costado.
+ ctx.save();ctx.translate(player.x,player.y);ctx.scale(player.facing||1,1);
  ctx.fillStyle='rgba(0,0,0,.4)';ctx.fillRect(-14,13,30,9);
- // cuerpo y mochila, orientado hacia el mouse
- const avatar=characters.find(c=>c.id===characterId)||characters[0];ctx.fillStyle='#263a45';ctx.fillRect(-12,-10,24,25);ctx.fillStyle=avatar.body;ctx.fillRect(-10,-13,20,21);
+ ctx.fillStyle='#263a45';ctx.fillRect(-12,-10,24,25);ctx.fillStyle=avatar.body;ctx.fillRect(-10,-13,20,21);
+ ctx.fillStyle=avatar.accent||'#344d42';ctx.fillRect(-7,-8,14,8);
  ctx.fillStyle=avatar.head;ctx.fillRect(-8,-23,16,13);ctx.fillStyle='#222b2c';ctx.fillRect(-5,-20,3,3);ctx.fillRect(3,-20,3,3);
  ctx.fillStyle='#9a7954';ctx.fillRect(-15,-5,6,15);ctx.fillRect(9,-5,6,15);
- ctx.fillStyle='#d4d7c5';ctx.fillRect(7,-5,24,5);ctx.fillStyle='#6b7770';ctx.fillRect(23,-7,8,9);
- ctx.fillStyle='#182328';ctx.fillRect(-9,13,7,8);ctx.fillRect(3,13,7,8);
- ctx.restore();
+ if(characterId==='medic'){ctx.fillStyle='#c94f55';ctx.fillRect(-4,-7,8,3);ctx.fillRect(-1,-10,3,9);ctx.fillStyle='#f5f1e5';ctx.fillRect(-5,-25,10,3)}
+ if(characterId==='ranger'){ctx.fillStyle='#57412e';ctx.fillRect(-12,-25,24,4);ctx.fillRect(-7,-29,14,5)}
+ if(characterId==='shadow'){ctx.fillStyle='#29253e';ctx.fillRect(-11,-27,22,7);ctx.fillRect(-9,-21,4,9);ctx.fillRect(5,-21,4,9)}
+ if(characterId==='gold'){ctx.fillStyle='#fff0a1';ctx.fillRect(-10,-28,5,6);ctx.fillRect(-2,-32,5,10);ctx.fillRect(6,-28,5,6);ctx.fillRect(-9,-5,18,3)}
+ ctx.fillStyle='#182328';ctx.fillRect(-9,13,7,8);ctx.fillRect(3,13,7,8);ctx.restore();
+ // El arma apunta directamente hacia el cursor.
+ ctx.save();ctx.translate(player.x,player.y);ctx.rotate(player.angle);
+ ctx.fillStyle='#9a7954';ctx.fillRect(-4,-3,11,7);ctx.fillStyle='#d4d7c5';ctx.fillRect(5,-3,24,5);ctx.fillStyle='#6b7770';ctx.fillRect(25,-5,8,9);ctx.restore();
 }
 function drawMenuBg(){ctx.fillStyle='#172a25';ctx.fillRect(0,0,W,H);for(let i=0;i<90;i++){let x=(i*137)%W,y=(i*83)%H;ctx.fillStyle=i%3?'#294333':'#36513b';ctx.fillRect(x,y,4,4)}}
 function loop(now){let dt=Math.min((now-lastTime)/1000||0,.04);lastTime=now;if(state==='playing')update(dt);draw();requestAnimationFrame(loop)}
