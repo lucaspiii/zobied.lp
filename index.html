@@ -259,8 +259,9 @@ function spawnZombie(){
  for(let attempt=0;attempt<90;attempt++){
   const angle=Math.random()*Math.PI*2;
   const dist=Math.max(W,H)*(.58+Math.random()*.32)+100;
-  const tx=player.x+Math.cos(angle)*dist,ty=player.y+Math.sin(angle)*dist;
-  if(!circleHitsWorld(tx,ty,15)){
+  const tx=Math.max(WORLD_MIN+35,Math.min(WORLD_MAX-35,player.x+Math.cos(angle)*dist));
+  const ty=Math.max(WORLD_MIN+35,Math.min(WORLD_MAX-35,player.y+Math.sin(angle)*dist));
+  if(!circleHitsWorld(tx,ty,15)&&Math.hypot(tx-player.x,ty-player.y)>180){
    x=tx;y=ty;found=true;break;
   }
  }
@@ -269,8 +270,9 @@ function spawnZombie(){
   for(let ring=1;ring<=12&&!found;ring++){
    for(let i=0;i<24;i++){
     const angle=i*Math.PI*2/24,dist=ring*55;
-    const tx=player.x+Math.cos(angle)*dist,ty=player.y+Math.sin(angle)*dist;
-    if(!circleHitsWorld(tx,ty,15)){x=tx;y=ty;found=true;break;}
+    const tx=Math.max(WORLD_MIN+35,Math.min(WORLD_MAX-35,player.x+Math.cos(angle)*dist));
+    const ty=Math.max(WORLD_MIN+35,Math.min(WORLD_MAX-35,player.y+Math.sin(angle)*dist));
+    if(!circleHitsWorld(tx,ty,15)&&Math.hypot(tx-player.x,ty-player.y)>100){x=tx;y=ty;found=true;break;}
    }
   }
  }
@@ -378,22 +380,30 @@ function draw(){
 // Ciudad procedural por sectores: el mapa continúa en todas las direcciones.
 
 const BLOCK=620,ROAD=140;
+const WORLD_MIN=-2*BLOCK,WORLD_MAX=2*BLOCK;
 function blockSeed(ix,iy){
  let n=(ix*374761393+iy*668265263+0x5f3759df)|0;
  n=Math.imul(n^(n>>>13),1274126177);
  return (n^(n>>>16))>>>0;
 }
 function worldObjects(x1,y1,x2,y2){
- const out=[],ix1=Math.floor(x1/BLOCK)-1,ix2=Math.floor(x2/BLOCK)+1,iy1=Math.floor(y1/BLOCK)-1,iy2=Math.floor(y2/BLOCK)+1;
+ const out=[],ix1=Math.max(-2,Math.floor(x1/BLOCK)-1),ix2=Math.min(1,Math.floor(x2/BLOCK)+1),iy1=Math.max(-2,Math.floor(y1/BLOCK)-1),iy2=Math.min(1,Math.floor(y2/BLOCK)+1);
+ if(ix1>ix2||iy1>iy2)return out;
  const kinds=['house','shop','warehouse','hospital','police','gas'];
  for(let ix=ix1;ix<=ix2;ix++)for(let iy=iy1;iy<=iy2;iy++){
   const ox=ix*BLOCK,oy=iy*BLOCK;
   if(ix===0&&iy===0){
-   out.push({type:'base',x:ox+190,y:oy+135,w:350,h:370});
-   out.push({type:'building',kind:'military',x:ox+285,y:oy+205,w:160,h:125});
-   out.push({type:'building',kind:'military',x:ox+455,y:oy+350,w:75,h:100});
-   out.push({type:'tower',x:ox+220,y:oy+175,w:35,h:35});
-   out.push({type:'tree',x:ox+125,y:oy+410,r:17});
+   out.push({type:'base',x:ox+105,y:oy+105,w:410,h:410});
+   out.push({type:'building',kind:'hangar',x:ox+145,y:oy+155,w:165,h:112});
+   out.push({type:'building',kind:'barracks',x:ox+335,y:oy+155,w:135,h:82});
+   out.push({type:'building',kind:'armory',x:ox+335,y:oy+270,w:135,h:78});
+   out.push({type:'building',kind:'military',x:ox+155,y:oy+330,w:112,h:82});
+   out.push({type:'tower',x:ox+112,y:oy+112,w:34,h:34});
+   out.push({type:'tower',x:ox+474,y:oy+112,w:34,h:34});
+   out.push({type:'tower',x:ox+112,y:oy+474,w:34,h:34});
+   out.push({type:'tower',x:ox+474,y:oy+474,w:34,h:34});
+   out.push({type:'car',x:ox+300,y:oy+445});
+   out.push({type:'car',x:ox+390,y:oy+430});
    continue;
   }
   let seed=blockSeed(ix,iy);
@@ -457,6 +467,7 @@ function interactBuilding(){
  showToast(b.kind==='military'?'BASE MILITAR · EDIFICIO':'ENTRASTE AL EDIFICIO');
 }
 function circleHitsWorld(x,y,r){
+ if(x-r<WORLD_MIN||x+r>WORLD_MAX||y-r<WORLD_MIN||y+r>WORLD_MAX)return true;
  if(insideBuilding){
   const b=insideBuilding,left=b.x+12,right=b.x+b.w-12,top=b.y+12,bottom=b.y+b.h-12,cx=b.x+b.w/2;
   if(x-r<left||x+r>right||y-r<top||y+r>bottom)return true;
@@ -475,6 +486,12 @@ function circleHitsWorld(x,y,r){
    if(Math.abs(x-doorX)<25&&y>o.y+o.h-24&&y<o.y+o.h+15)continue;
    const px=Math.max(o.x,Math.min(x,o.x+o.w)),py=Math.max(o.y,Math.min(y,o.y+o.h));
    if((x-px)**2+(y-py)**2<r*r)return true;
+  }else if(o.type==='base'){
+   const left=o.x,right=o.x+o.w,top=o.y,bottom=o.y+o.h,gate=(right-left)*.34;
+   const nearV=(Math.abs(x-left)<r+5||Math.abs(x-right)<r+5)&&y>top-r&&y<bottom+r;
+   const nearTop=Math.abs(y-top)<r+5&&x>left-r&&x<right+r;
+   const nearBottom=Math.abs(y-bottom)<r+5&&Math.abs(x-(left+right)/2)>gate/2+r;
+   if(nearV||nearTop||nearBottom)return true;
   }else if(o.type==='tree'&&Math.hypot(x-o.x,y-o.y)<r+o.r)return true;
   else if(o.type==='car'&&Math.abs(x-o.x)<28+r&&Math.abs(y-o.y)<15+r)return true;
   else if(o.type==='tower'&&x>o.x-r&&x<o.x+o.w+r&&y>o.y-r&&y<o.y+o.h+r)return true;
@@ -515,7 +532,10 @@ function drawWorld(){
 function drawBuilding(o){
  const {x,y,w,h}=o,kind=o.kind;
  const styles={
-  military:['#626d65','#8a9582','MILITAR','#d5d7bd'],
+  military:['#626d65','#8a9582','PUESTO MILITAR','#d5d7bd'],
+  hangar:['#59665e','#87958a','HANGAR','#e0d7a8'],
+  barracks:['#536b58','#82947a','BARRACAS','#d9dfb8'],
+  armory:['#5a6264','#879295','ARSENAL','#e5c56d'],
   shop:['#776b58','#b08a61','MERCADO','#ffe2a1'],
   warehouse:['#626b6a','#7a8580','DEPÓSITO','#d6dfdc'],
   hospital:['#657c7a','#a9c8bd','HOSPITAL','#f4f5e8'],
@@ -527,9 +547,12 @@ function drawBuilding(o){
  ctx.fillStyle='#111a1d';ctx.fillRect(x+8,y+9,w,h);
  ctx.fillStyle=st[0];ctx.fillRect(x,y,w,h);
  ctx.fillStyle=st[1];ctx.fillRect(x+7,y+7,w-14,h-14);
- if(kind==='military'||kind==='shop'||kind==='warehouse'||kind==='hospital'||kind==='police'||kind==='gas'){
+ if(kind==='military'||kind==='hangar'||kind==='barracks'||kind==='armory'||kind==='shop'||kind==='warehouse'||kind==='hospital'||kind==='police'||kind==='gas'){
   ctx.fillStyle='#293c3d';ctx.fillRect(x+15,y+17,Math.min(27,w/4),22);ctx.fillRect(x+w-42,y+17,25,22);
   ctx.fillStyle=st[3];ctx.font='bold 9px monospace';ctx.textAlign='center';ctx.fillText(st[2],x+w/2,y+13+Math.min(18,h*.18));
+  if(kind==='hangar'){ctx.fillStyle='#35413c';ctx.fillRect(x+w*.30,y+h*.40,w*.40,h*.48);ctx.fillStyle='#aeb69c';ctx.fillRect(x+w*.30,y+h*.40,w*.40,5);ctx.fillRect(x+w*.30,y+h*.40,5,h*.48);ctx.fillRect(x+w*.70-5,y+h*.40,5,h*.48);}
+  if(kind==='barracks'){ctx.fillStyle='#263c36';for(let n=0;n<3;n++)ctx.fillRect(x+22+n*34,y+42,19,15);}
+  if(kind==='armory'){ctx.fillStyle='#d5bd69';ctx.fillRect(x+w/2-3,y+34,6,19);ctx.fillRect(x+w/2-10,y+40,20,6);}
   if(kind==='hospital'){ctx.fillStyle='#f3f4e8';ctx.fillRect(x+w/2-3,y+32,6,18);ctx.fillRect(x+w/2-9,y+38,18,6);}
   if(kind==='police'){ctx.fillStyle='#e9cf64';ctx.fillRect(x+w/2-14,y+h-48,28,5);}
   if(kind==='gas'){ctx.fillStyle='#d64c3d';ctx.fillRect(x+w/2-12,y+h-56,24,9);}
@@ -540,10 +563,25 @@ function drawBuilding(o){
 }
 function drawMilitaryBase(o){
  const {x,y,w,h}=o;
- ctx.fillStyle='#252f2c';ctx.fillRect(x,y,w,h);
- ctx.strokeStyle='#b4b9a0';ctx.lineWidth=5;ctx.setLineDash([14,7]);ctx.strokeRect(x,y,w,h);ctx.setLineDash([]);
- ctx.fillStyle='#b8c3a0';ctx.font='bold 14px monospace';ctx.textAlign='center';ctx.fillText('BASE MILITAR',x+w/2,y+24);
- for(let i=0;i<4;i++){ctx.fillStyle='#66766b';ctx.fillRect(x+18+i*82,y+h-30,48,12);}
+ ctx.fillStyle='#343f3a';ctx.fillRect(x,y,w,h);
+ ctx.fillStyle='#465149';ctx.fillRect(x+9,y+9,w-18,h-18);
+ ctx.strokeStyle='rgba(205,202,160,.42)';ctx.lineWidth=2;
+ for(let i=0;i<4;i++){ctx.beginPath();ctx.moveTo(x+24+i*22,y+286);ctx.lineTo(x+24+i*22,y+335);ctx.stroke();}
+ ctx.fillStyle='#27332f';ctx.fillRect(x+w/2-62,y+h-31,124,26);
+ // Muro perimetral con portón principal amplio.
+ ctx.fillStyle='#8a9588';
+ ctx.fillRect(x-5,y-5,w+10,13);ctx.fillRect(x-5,y-5,13,h+10);ctx.fillRect(x+w-8,y-5,13,h+10);
+ const gateW=w*.34;
+ ctx.fillRect(x-5,y+h-8,(w-gateW)/2+5,13);
+ ctx.fillRect(x+w/2+gateW/2,y+h-8,(w-gateW)/2+5,13);
+ for(const [tx,ty] of [[x,y],[x+w,y],[x,y+h],[x+w,y+h]]){
+  ctx.fillStyle='#c4c8ad';ctx.fillRect(tx-7,ty-7,19,19);
+  ctx.fillStyle='#e4d88b';ctx.fillRect(tx-2,ty-2,5,5);
+ }
+ ctx.fillStyle='#1c2926';ctx.fillRect(x+w/2-70,y+h-52,140,23);
+ ctx.fillStyle='#e4d88b';ctx.font='bold 11px monospace';ctx.textAlign='center';ctx.fillText('BASE MILITAR',x+w/2,y+h-36);
+ ctx.fillStyle='#d7c46b';ctx.fillRect(x+w/2-48,y+h-12,96,5);
+ ctx.fillStyle='#202a27';ctx.fillRect(x+w/2-39,y+h-20,8,13);ctx.fillRect(x+w/2+31,y+h-20,8,13);
 }
 function drawWatchTower(o){ctx.fillStyle='#343b37';ctx.fillRect(o.x+12,o.y+12,10,28);ctx.fillStyle='#8a9a83';ctx.fillRect(o.x,o.y,o.w,o.h);ctx.fillStyle='#303b39';ctx.fillRect(o.x+6,o.y+6,o.w-12,10);}
 function drawCar(x,y){ctx.fillStyle='#1b2527';ctx.fillRect(x-25,y-11,52,25);ctx.fillStyle='#788c84';ctx.fillRect(x-21,y-9,43,19);ctx.fillStyle='#263b42';ctx.fillRect(x-12,y-8,23,17);ctx.fillStyle='#111';ctx.fillRect(x-18,y-14,10,4);ctx.fillRect(x+9,y-14,10,4);}
@@ -649,7 +687,7 @@ function drawMapUI(){
   // Mapa de sector de tamaño limitado: siempre muestra la base y los barrios cercanos.
   const big=Math.max(280,Math.min(610,W-64,H-150));
   const mapX=(W-big)/2,mapY=(H-big)/2+2;
-  drawMapPanel(mapX,mapY,big,5.2,false,0,0,true);
+  drawMapPanel(mapX,mapY,big,4.0,false,0,0,true);
   ctx.fillStyle='#f4f7e9';ctx.font='bold 16px monospace';ctx.textAlign='center';
   ctx.fillText('MAPA DEL SECTOR · M PARA CERRAR',W/2,mapY-20);
   ctx.fillStyle='#8be36d';ctx.font='bold 10px monospace';
@@ -707,7 +745,7 @@ function drawMapPanel(x,y,size,zoom,onlyExplored,centerX,centerY,showBase){
  }
  // Punto de la base militar: se muestra siempre en el mapa del sector.
  if(showBase){
-  const bX=sx(365),bY=sy(320);
+  const bX=sx(310),bY=sy(310);
   ctx.fillStyle='rgba(8,20,13,.85)';ctx.beginPath();ctx.arc(bX,bY,10,0,Math.PI*2);ctx.fill();
   ctx.fillStyle='#8be36d';ctx.beginPath();ctx.arc(bX,bY,6,0,Math.PI*2);ctx.fill();
   ctx.strokeStyle='#eaffbd';ctx.lineWidth=2;ctx.stroke();
