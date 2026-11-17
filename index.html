@@ -90,7 +90,7 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated;cursor:cro
   <div id="bottomHud">
    <div class="panel" id="weaponBox"><div id="weaponName">PISTOLA</div><div><strong id="ammoText">12 / 48</strong></div><small>CLIC IZQ. DISPARAR · R RECARGAR</small></div>
    <button class="gold" id="shopBtn" style="pointer-events:auto">TIENDA [B]</button>
-   <button class="secondary" id="pauseBtn" style="pointer-events:auto">PAUSA [P]</button><div id="abilityHud"><button class="ability" id="pulseBtn">⚡ PULSO<small id="pulseCd">Q · LISTO</small></button><button class="ability" id="dashBtn">💨 DASH<small id="dashCd">E · LISTO</small></button><button class="ability" id="healBtn">❤️ CURAR<small id="healCd">F · LISTO</small></button></div>
+   <button class="secondary" id="pauseBtn" style="pointer-events:auto">PAUSA [P]</button><div id="abilityHud"><button class="ability" id="pulseBtn">⚡ PULSO<small id="pulseCd">Q · PULSO</small></button><button class="ability" id="dashBtn">💨 DASH<small id="dashCd">E · DASH</small></button><button class="ability" id="healBtn">❤️ CURAR<small id="healCd">F · LISTO</small></button></div>
   </div>
   <div id="toast"></div><div id="crosshair"></div><div id="pauseHint">WASD: moverte · MOUSE: apuntar · CLIC: disparar · SHIFT: correr · B: tienda · P: pausa · Q: pulso · E: dash · F: curar</div>
   <div id="notice"></div>
@@ -180,7 +180,9 @@ const rarities=[
 function reset(){player={x:0,y:0,hp:permanentMaxHp,maxHp:permanentMaxHp,speed:190,angle:0,facing:1,invuln:0};zombies=[];bullets=[];particles=[];kills=0;wave=1;spawnLeft=7;spawnTimer=1;bossWave=false;pet={x:-35,y:25};abilityCooldowns={pulse:0,dash:0,heal:0};if(!owned.has(weaponId))weaponId='pistol';weapons.forEach(w=>ammo[w.id]={mag:w.mag,reserve:w.reserve});saveProfile();}
 function currentWeapon(){return weapons.find(w=>w.id===weaponId)}
 function useAbility(type){if(state!=='playing'||abilityCooldowns[type]>0)return;
- if(type==='pulse'){let hit=0;for(const z of zombies){if(Math.hypot(z.x-player.x,z.y-player.y)<190){z.hp-=115;z.hit=.18;hit++;if(z.hp<=0){money+=z.reward;kills++;saveProfile();addBurst(z.x,z.y,z.rarity.color,12)}}}abilityCooldowns.pulse=12;addBurst(player.x,player.y,'#70eaff',34);showToast('¡PULSO ELÉCTRICO! '+hit+' alcanzados');}
+ if(type==='pulse'){let hit=0;for(const z of zombies){const dx=z.x-player.x,dy=z.y-player.y,dist=Math.hypot(dx,dy);
+ const diff=Math.atan2(Math.sin(Math.atan2(dy,dx)-player.angle),Math.cos(Math.atan2(dy,dx)-player.angle));
+ if(dist<270&&Math.abs(diff)<0.62){z.hp-=115;z.hit=.18;hit++;if(z.hp<=0){money+=z.reward;kills++;saveProfile();addBurst(z.x,z.y,z.rarity.color,12)}}}abilityCooldowns.pulse=12;addBurst(player.x,player.y,'#70eaff',34);showToast('¡PULSO DIRECCIONAL! '+hit+' alcanzados');}
  if(type==='dash'){const a=player.angle;for(let i=0;i<18;i++){const nx=player.x+Math.cos(a)*10,ny=player.y+Math.sin(a)*10;if(circleHitsWorld(nx,player.y,13)||circleHitsWorld(player.x,ny,13))break;player.x=nx;player.y=ny;}abilityCooldowns.dash=8;addBurst(player.x,player.y,'#8befff',14);showToast('¡DASH!');}
  if(type==='heal'){if(player.hp>=player.maxHp){showToast('YA TENÉS VIDA COMPLETA');return}player.hp=Math.min(player.maxHp,player.hp+40);abilityCooldowns.heal=25;addBurst(player.x,player.y,'#8be36d',18);showToast('¡+40 VIDA!');}updateHud();}
 
@@ -334,7 +336,7 @@ function update(dt){
  cameraShake=Math.max(0,cameraShake-dt*18);if(toastTimer>0){toastTimer-=dt;if(toastTimer<=0)$('toast').textContent=''}
  updateHud();
 }
-function updateHud(){if(!player){const a=$('accountPreview');if(a)a.textContent='CUENTA: $'+money.toLocaleString('es-AR');return;}$('healthText').textContent=Math.max(0,Math.ceil(player.hp))+' / '+player.maxHp;$('healthBar').style.width=Math.max(0,player.hp/player.maxHp*100)+'%';$('healthBar').style.background=player.hp<30?'#ff6868':'#8be36d';$('waveText').textContent=wave;$('killsText').textContent=kills;$('moneyText').textContent='$'+money.toLocaleString('es-AR');$('remainingText').textContent=(spawnLeft+zombies.length);const boss=zombies.find(z=>z.boss);$('bossHud').classList.toggle('hidden',!boss);if(boss){$('bossName').textContent=boss.name;$('bossBar').style.width=Math.max(0,boss.hp/boss.maxHp*100)+'%'}[['pulse','pulseCd','pulseBtn'],['dash','dashCd','dashBtn'],['heal','healCd','healBtn']].forEach(([k,l,b])=>{$(l).textContent=abilityCooldowns[k]>0?abilityCooldowns[k].toFixed(1)+'s':'LISTO';$(b).disabled=abilityCooldowns[k]>0});$('ammoText').textContent=ammo[weaponId].mag+' / '+ammo[weaponId].reserve;$('weaponName').textContent=currentWeapon().name.toUpperCase()}
+function updateHud(){if(!player){const a=$('accountPreview');if(a)a.textContent='CUENTA: $'+money.toLocaleString('es-AR');return;}$('healthText').textContent=Math.max(0,Math.ceil(player.hp))+' / '+player.maxHp;$('healthBar').style.width=Math.max(0,player.hp/player.maxHp*100)+'%';$('healthBar').style.background=player.hp<30?'#ff6868':'#8be36d';$('waveText').textContent=wave;$('killsText').textContent=kills;$('moneyText').textContent='$'+money.toLocaleString('es-AR');$('remainingText').textContent=(spawnLeft+zombies.length);const boss=zombies.find(z=>z.boss);$('bossHud').classList.toggle('hidden',!boss);if(boss){$('bossName').textContent=boss.name;$('bossBar').style.width=Math.max(0,boss.hp/boss.maxHp*100)+'%'}[['pulse','pulseCd','pulseBtn'],['dash','dashCd','dashBtn'],['heal','healCd','healBtn']].forEach(([k,l,b])=>{$(l).textContent=abilityCooldowns[k]>0?abilityCooldowns[k].toFixed(1)+'s · '+({pulse:'Q',dash:'E',heal:'F'}[k]):({pulse:'Q',dash:'E',heal:'F'}[k])+' · LISTO';$(b).disabled=abilityCooldowns[k]>0});$('ammoText').textContent=ammo[weaponId].mag+' / '+ammo[weaponId].reserve;$('weaponName').textContent=currentWeapon().name.toUpperCase()}
 function gameOver(){saveProfile();saveRun();state='over';$('overlay').classList.remove('hidden');$('menuSubtitle').innerHTML=`TE ALCANZARON...<br>Sobreviviste hasta la oleada ${wave}. Eliminaste ${kills} zombies.<br>Saldo guardado: $${money.toLocaleString('es-AR')}.`;$('startBtn').textContent='VOLVER A JUGAR';$('helpText').textContent='Cada partida empieza desde cero. ¡Probá llegar más lejos!'}
 function draw(){
  ctx.clearRect(0,0,W,H);
@@ -420,7 +422,39 @@ function drawZombie(z){
  if(z.boss||z.rarity.reward>=75){ctx.fillStyle=z.rarity.color;ctx.font=z.boss?'bold 12px monospace':'9px monospace';ctx.textAlign='center';ctx.fillText(z.boss?z.name:z.rarity.name,0,z.boss?-59:-39)}
  ctx.restore();
 }
-function drawPet(){if(!pet)return;const p=pets.find(v=>v.id===petId)||pets[0];ctx.save();ctx.translate(pet.x,pet.y);const bob=Math.sin(worldTime*7)*2;ctx.fillStyle='rgba(0,0,0,.3)';ctx.fillRect(-11,8,24,5);if(p.kind==='capy'){ctx.fillStyle=p.color;ctx.fillRect(-12,-8+bob,24,16);ctx.fillRect(4,-14+bob,10,11);ctx.fillStyle='#211c18';ctx.fillRect(10,-10+bob,3,3);ctx.fillRect(7,5+bob,4,5);ctx.fillRect(-8,5+bob,4,5);}else if(p.kind==='dog'){ctx.fillStyle=p.color;ctx.fillRect(-11,-7+bob,22,15);ctx.fillRect(5,-13+bob,12,13);ctx.fillRect(10,-15+bob,5,8);ctx.fillStyle='#30221b';ctx.fillRect(14,-7+bob,3,3);ctx.fillRect(-7,6+bob,4,6);ctx.fillRect(5,6+bob,4,6);}else{ctx.fillStyle=p.color;ctx.fillRect(-10,-8+bob,20,16);ctx.fillRect(-9,-15+bob,7,8);ctx.fillRect(3,-15+bob,7,8);ctx.fillStyle='#e9c56a';ctx.fillRect(3,-5+bob,3,3);ctx.fillRect(-5,-5+bob,3,3);ctx.fillRect(-14,-2+bob,5,4);}ctx.restore();}
+function drawPet(){
+ if(!pet)return;
+ const p=pets.find(v=>v.id===petId)||pets[0],bob=Math.sin(worldTime*7)*2;
+ ctx.save();ctx.translate(pet.x,pet.y);
+ ctx.fillStyle='rgba(0,0,0,.32)';ctx.fillRect(-14,11,29,5);
+ if(p.kind==='capy'){
+  ctx.fillStyle='#765333';ctx.fillRect(-13,-7+bob,23,15);ctx.fillRect(5,-13+bob,11,13);
+  ctx.fillStyle='#a77b4d';ctx.fillRect(-10,-10+bob,15,7);ctx.fillRect(8,-16+bob,6,6);
+  ctx.fillStyle='#2b2119';ctx.fillRect(12,-8+bob,3,3);ctx.fillRect(6,-2+bob,3,3);
+  ctx.fillStyle='#4b3828';ctx.fillRect(-9,6+bob,5,7);ctx.fillRect(5,6+bob,5,7);
+ }else if(p.kind==='dog'){
+  // Shar-pei: broad body, folded ears, muzzle and curled tail.
+  ctx.fillStyle='#a77b50';ctx.fillRect(-13,-7+bob,25,16);ctx.fillRect(5,-13+bob,14,14);
+  ctx.fillStyle='#d4ad7e';ctx.fillRect(8,-16+bob,8,7);ctx.fillRect(12,-9+bob,9,7);
+  ctx.fillStyle='#765035';ctx.fillRect(4,-15+bob,6,8);ctx.fillRect(16,-15+bob,6,8);
+  ctx.fillStyle='#38271e';ctx.fillRect(17,-8+bob,3,3);ctx.fillRect(12,-3+bob,5,3);
+  ctx.fillStyle='#e7c89a';ctx.fillRect(15,-1+bob,7,4);
+  ctx.fillStyle='#765035';ctx.fillRect(-17,-4+bob,5,4);ctx.fillRect(-19,-8+bob,4,5);
+  ctx.fillStyle='#65452e';ctx.fillRect(-9,7+bob,5,7);ctx.fillRect(5,7+bob,5,7);
+  ctx.fillStyle='#e8cba0';ctx.fillRect(-3,-5+bob,3,3);
+ }else{
+  // Cat: pointed ears, distinct face, whiskers, paws and curved tail.
+  ctx.fillStyle='#59616e';ctx.fillRect(-11,-6+bob,22,14);ctx.fillRect(5,-13+bob,13,13);
+  ctx.fillStyle='#858e9d';ctx.fillRect(5,-19+bob,6,9);ctx.fillRect(13,-19+bob,6,9);
+  ctx.fillStyle='#e7a0a0';ctx.fillRect(7,-16+bob,3,4);ctx.fillRect(15,-16+bob,3,4);
+  ctx.fillStyle='#e9c96b';ctx.fillRect(8,-9+bob,3,3);ctx.fillRect(15,-9+bob,3,3);
+  ctx.fillStyle='#252a32';ctx.fillRect(12,-5+bob,3,3);
+  ctx.fillStyle='#d5dbe1';ctx.fillRect(17,-4+bob,7,1);ctx.fillRect(17,-1+bob,7,1);ctx.fillRect(3,-4+bob,6,1);
+  ctx.fillStyle='#424955';ctx.fillRect(-8,6+bob,5,7);ctx.fillRect(5,6+bob,5,7);
+  ctx.fillRect(-15,-4+bob,5,4);ctx.fillRect(-18,-8+bob,4,5);ctx.fillRect(-20,-12+bob,4,5);
+ }
+ ctx.restore();
+}
 function drawPlayer(){
  const avatar=characters.find(c=>c.id===characterId)||characters[0];
  // El cuerpo mira a izquierda o derecha según el mouse; no gira de costado.
