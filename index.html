@@ -99,7 +99,7 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated;cursor:cro
  <div id="overlay">
   <div class="card">
    <div class="logo">ZOMBIE <span>OUTBREAK</span></div>
-   <div class="subtitle" id="menuSubtitle">La ciudad cayó. Sobreviví a las oleadas, conseguí monedas y mejorá tu equipo.</div>
+   <div class="subtitle" id="menuSubtitle">La ciudad cayó. Explorá barrios distintos, encontrá edificios especiales y enfrentá zombies con atuendos únicos. Sobreviví a las oleadas, conseguí monedas y mejorá tu equipo.</div>
    <div id="accountPreview" style="color:#8be36d;font-weight:bold;margin:12px 0">CUENTA: $0</div>
    <div class="actions">
     <button id="startBtn">JUGAR</button>
@@ -160,10 +160,10 @@ let profile=loadProfile();
 let state='menu',shopReturnState='playing',shopTab='weapons',player, zombies=[],bullets=[],particles=[],money=Math.max(0,Number(profile.coins)||0),kills=0,wave=1,spawnLeft=0,spawnTimer=0,lastShot=0,lastTime=0,toastTimer=0,owned=new Set(profile.ownedWeapons||['pistol']),weaponId=profile.weaponId||'pistol',ammo={},cameraShake=0,worldTime=0;
 const characters=[
  {id:'rookie',name:'Recluta',price:0,body:'#547d68',head:'#a8b89a',desc:'El superviviente clásico.',rarity:'COMÚN',rarityColor:'#9ee477',accent:'#344d42'},
- {id:'medic',name:'Médica',price:650,body:'#e8e8dc',head:'#e4b99c',desc:'Especialista preparada para ayudar.',rarity:'POCO COMÚN',rarityColor:'#65c9ff',accent:'#c94f55'},
- {id:'ranger',name:'Explorador',price:1100,body:'#9b7548',head:'#d2b18b',desc:'Ropa resistente para explorar.',rarity:'RARO',rarityColor:'#bd8cff',accent:'#455c35'},
- {id:'shadow',name:'Sombra',price:2400,body:'#544b75',head:'#b9a9a0',desc:'Un atuendo difícil de encontrar.',rarity:'ÉPICO',rarityColor:'#ffbd58',accent:'#252338'},
- {id:'gold',name:'Sobreviviente dorado',price:5000,body:'#d7a82f',head:'#f1d99a',desc:'Un aspecto legendario.',rarity:'LEGENDARIO',rarityColor:'#ff6565',accent:'#fff0a1'}
+ {id:'medic',name:'Médica',price:350,body:'#e8e8dc',head:'#e4b99c',desc:'Especialista preparada para ayudar.',rarity:'POCO COMÚN',rarityColor:'#65c9ff',accent:'#c94f55'},
+ {id:'ranger',name:'Explorador',price:750,body:'#9b7548',head:'#d2b18b',desc:'Ropa resistente para explorar.',rarity:'RARO',rarityColor:'#bd8cff',accent:'#455c35'},
+ {id:'shadow',name:'Sombra',price:1500,body:'#544b75',head:'#b9a9a0',desc:'Un atuendo difícil de encontrar.',rarity:'ÉPICO',rarityColor:'#ffbd58',accent:'#252338'},
+ {id:'gold',name:'Sobreviviente dorado',price:3000,body:'#d7a82f',head:'#f1d99a',desc:'Un aspecto legendario.',rarity:'LEGENDARIO',rarityColor:'#ff6565',accent:'#fff0a1'}
 ];
 let ownedCharacters=new Set(profile.ownedCharacters||['rookie']),characterId=profile.characterId||'rookie',permanentMaxHp=Math.max(100,Number(profile.maxHp)||100);
 const pets=[{id:'capy',name:'Carpincho',kind:'capy',color:'#a77b4d',desc:'Compañero tranquilo que te sigue.'},{id:'sharpei',name:'Shar-pei',kind:'dog',color:'#c99b63',desc:'Un perro fiel que te acompaña.'},{id:'cat',name:'Gato',kind:'cat',color:'#858b98',desc:'Pequeño compañero siempre alerta.'}];
@@ -280,7 +280,18 @@ function spawnZombie(){
  let r=Math.random(),idx=r<.62?0:r<.82?1:r<.94?2:r<.99?3:4;
  if(wave>=4&&Math.random()<.08)idx=Math.max(idx,2);
  const base=rarities[idx],mult=1+(wave-1)*.13;
- zombies.push({x,y,hp:base.hp*mult,maxHp:base.hp*mult,speed:base.speed*(1+(wave-1)*.025),reward:base.reward,rarity:base,scale:base.scale,attack:0,hit:0,phase:Math.random()*6});
+ const outfits=[
+  {name:'civil',shirt:'#557a4c',pants:'#263b32',skin:'#718d61',hat:null},
+  {name:'policia',shirt:'#263e68',pants:'#172a43',skin:'#91a27b',hat:'#182b50',badge:'#f4d35e'},
+  {name:'militar',shirt:'#657344',pants:'#39452c',skin:'#82916c',hat:'#46552f',vest:'#8c9855'},
+  {name:'obrero',shirt:'#d47b32',pants:'#4a4540',skin:'#a0a17c',hat:'#e4b84c',vest:'#f2cf55'},
+  {name:'medico',shirt:'#d6ded0',pants:'#64736d',skin:'#91a17c',hat:'#dce8df',cross:'#d94e4e'},
+  {name:'bombero',shirt:'#a63e35',pants:'#343b3b',skin:'#9aa17b',hat:'#d5a63d',vest:'#e0b94d'},
+  {name:'cientifico',shirt:'#a9c4b8',pants:'#52615b',skin:'#b0a58b',hat:'#e3e6d7',mask:'#dce6dc'},
+  {name:'callejero',shirt:'#754a83',pants:'#282d3d',skin:'#8c9b70',hat:'#33283e'}
+ ];
+ const outfit=outfits[Math.floor(Math.random()*outfits.length)];
+ zombies.push({x,y,hp:base.hp*mult,maxHp:base.hp*mult,speed:base.speed*(1+(wave-1)*.025),reward:base.reward,rarity:base,scale:base.scale,attack:0,hit:0,phase:Math.random()*6,outfit});
 }
 function shoot(){
  let w=currentWeapon(),a=ammo[w.id],now=performance.now();if(now-lastShot<w.rate||a.mag<=0)return;
@@ -367,11 +378,16 @@ function draw(){
 // Ciudad procedural por sectores: el mapa continúa en todas las direcciones.
 
 const BLOCK=620,ROAD=140;
+function blockSeed(ix,iy){
+ let n=(ix*374761393+iy*668265263+0x5f3759df)|0;
+ n=Math.imul(n^(n>>>13),1274126177);
+ return (n^(n>>>16))>>>0;
+}
 function worldObjects(x1,y1,x2,y2){
  const out=[],ix1=Math.floor(x1/BLOCK)-1,ix2=Math.floor(x2/BLOCK)+1,iy1=Math.floor(y1/BLOCK)-1,iy2=Math.floor(y2/BLOCK)+1;
+ const kinds=['house','shop','warehouse','hospital','police','gas'];
  for(let ix=ix1;ix<=ix2;ix++)for(let iy=iy1;iy<=iy2;iy++){
-  const ox=ix*BLOCK,oy=iy*BLOCK,zone=((ix*7+iy*11)%4+4)%4;
-  // La manzana inicial contiene la base militar principal.
+  const ox=ix*BLOCK,oy=iy*BLOCK;
   if(ix===0&&iy===0){
    out.push({type:'base',x:ox+190,y:oy+135,w:350,h:370});
    out.push({type:'building',kind:'military',x:ox+285,y:oy+205,w:160,h:125});
@@ -380,18 +396,37 @@ function worldObjects(x1,y1,x2,y2){
    out.push({type:'tree',x:ox+125,y:oy+410,r:17});
    continue;
   }
-  if(zone===0){
-   out.push({type:'building',kind:'house',x:ox+100,y:oy+105,w:135,h:150},{type:'building',kind:'house',x:ox+380,y:oy+355,w:145,h:155});
-   out.push({type:'tree',x:ox+285,y:oy+170,r:20},{type:'tree',x:ox+300,y:oy+450,r:19},{type:'car',x:ox+270,y:oy+300});
-  }else if(zone===1){
-   out.push({type:'building',kind:'shop',x:ox+95,y:oy+105,w:180,h:125},{type:'building',kind:'house',x:ox+385,y:oy+370,w:125,h:135});
-   out.push({type:'tree',x:ox+300,y:oy+180,r:24},{type:'tree',x:ox+300,y:oy+460,r:22},{type:'car',x:ox+300,y:oy+290});
-  }else if(zone===2){
-   out.push({type:'building',kind:'warehouse',x:ox+95,y:oy+110,w:190,h:155},{type:'building',kind:'warehouse',x:ox+380,y:oy+360,w:160,h:145});
-   out.push({type:'car',x:ox+300,y:oy+300});
-  }else{
-   out.push({type:'building',kind:'house',x:ox+105,y:oy+110,w:125,h:170},{type:'building',kind:'house',x:ox+390,y:oy+350,w:135,h:155});
-   out.push({type:'tree',x:ox+290,y:oy+180,r:24},{type:'tree',x:ox+290,y:oy+450,r:22},{type:'car',x:ox+300,y:oy+300});
+  let seed=blockSeed(ix,iy);
+  const rnd=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
+  const layout=Math.floor(rnd()*8),district=Math.floor(rnd()*6);
+  // Las construcciones quedan en las cuatro zonas de la manzana; el centro y
+  // los bordes se reservan para avenidas, cruces y veredas.
+  const slots=[
+   [82,82,132,132],[390,82,140,128],
+   [82,390,138,132],[390,390,142,138]
+  ];
+  const occupied=[];
+  const addBuilding=(slot,kindOverride)=>{
+   const [sx,sy,sw,sh]=slots[slot],w=Math.round(sw*(.78+rnd()*.22)),h=Math.round(sh*(.78+rnd()*.22));
+   const x=ox+sx+Math.round(rnd()*(sw-w)),y=oy+sy+Math.round(rnd()*(sh-h));
+   const kind=kindOverride||kinds[(district+(slot===0?0:Math.floor(rnd()*3)))%kinds.length];
+   out.push({type:'building',kind,x,y,w,h});occupied.push(slot);
+  };
+  if(layout===0){addBuilding(0,'house');addBuilding(3,'house');}
+  else if(layout===1){addBuilding(0,'shop');addBuilding(1,'house');addBuilding(2,'house');}
+  else if(layout===2){addBuilding(0,'warehouse');addBuilding(2,'warehouse');}
+  else if(layout===3){addBuilding(1,'hospital');addBuilding(2,'house');addBuilding(3,'shop');}
+  else if(layout===4){addBuilding(0,'police');addBuilding(1,'house');addBuilding(2,'house');addBuilding(3,'house');}
+  else if(layout===5){addBuilding(0,'gas');addBuilding(2,'shop');}
+  else if(layout===6){addBuilding(1,'warehouse');addBuilding(2,'house');addBuilding(3,'hospital');}
+  else {addBuilding(0,'house');addBuilding(1,'house');addBuilding(2,'shop');addBuilding(3,'house');}
+  // Vegetación, autos y contenedores se colocan en patios, nunca sobre avenidas.
+  const freeSlots=[0,1,2,3].filter(s=>!occupied.includes(s));
+  if(freeSlots.length&&rnd()<.82){
+   const slot=slots[freeSlots[Math.floor(rnd()*freeSlots.length)]];
+   const px=ox+slot[0]+slot[2]/2,py=oy+slot[1]+slot[3]/2;
+   if(rnd()<.62)out.push({type:'tree',x:px,y:py,r:15+Math.floor(rnd()*9)});
+   else out.push({type:'car',x:px,y:py});
   }
  }
  return out;
@@ -478,12 +513,29 @@ function drawWorld(){
  }
 }
 function drawBuilding(o){
- const {x,y,w,h}=o,military=o.kind==='military',shop=o.kind==='shop',warehouse=o.kind==='warehouse';
+ const {x,y,w,h}=o,kind=o.kind;
+ const styles={
+  military:['#626d65','#8a9582','MILITAR','#d5d7bd'],
+  shop:['#776b58','#b08a61','MERCADO','#ffe2a1'],
+  warehouse:['#626b6a','#7a8580','DEPÓSITO','#d6dfdc'],
+  hospital:['#657c7a','#a9c8bd','HOSPITAL','#f4f5e8'],
+  police:['#4c5d73','#718aa0','POLICÍA','#f3d56a'],
+  gas:['#76624b','#bd8755','ESTACIÓN','#f7e28c'],
+  house:['#62675f','#858878','CASA','#e6dfc4']
+ };
+ const st=styles[kind]||styles.house;
  ctx.fillStyle='#111a1d';ctx.fillRect(x+8,y+9,w,h);
- ctx.fillStyle=military?'#626d65':shop?'#776b58':warehouse?'#626b6a':'#62675f';ctx.fillRect(x,y,w,h);
- ctx.fillStyle=military?'#8a9582':shop?'#b08a61':warehouse?'#7a8580':'#858878';ctx.fillRect(x+7,y+7,w-14,h-14);
- if(military){ctx.fillStyle='#344d4a';ctx.fillRect(x+18,y+16,w-36,18);ctx.fillStyle='#d5d7bd';ctx.font='bold 10px monospace';ctx.textAlign='center';ctx.fillText('MILITAR',x+w/2,y+29);}
- else{ctx.fillStyle='#293c3d';ctx.fillRect(x+18,y+18,Math.min(25,w/4),22);ctx.fillRect(x+w-43,y+18,25,22);}
+ ctx.fillStyle=st[0];ctx.fillRect(x,y,w,h);
+ ctx.fillStyle=st[1];ctx.fillRect(x+7,y+7,w-14,h-14);
+ if(kind==='military'||kind==='shop'||kind==='warehouse'||kind==='hospital'||kind==='police'||kind==='gas'){
+  ctx.fillStyle='#293c3d';ctx.fillRect(x+15,y+17,Math.min(27,w/4),22);ctx.fillRect(x+w-42,y+17,25,22);
+  ctx.fillStyle=st[3];ctx.font='bold 9px monospace';ctx.textAlign='center';ctx.fillText(st[2],x+w/2,y+13+Math.min(18,h*.18));
+  if(kind==='hospital'){ctx.fillStyle='#f3f4e8';ctx.fillRect(x+w/2-3,y+32,6,18);ctx.fillRect(x+w/2-9,y+38,18,6);}
+  if(kind==='police'){ctx.fillStyle='#e9cf64';ctx.fillRect(x+w/2-14,y+h-48,28,5);}
+  if(kind==='gas'){ctx.fillStyle='#d64c3d';ctx.fillRect(x+w/2-12,y+h-56,24,9);}
+ }else{
+  ctx.fillStyle='#293c3d';ctx.fillRect(x+18,y+18,Math.min(25,w/4),22);ctx.fillRect(x+w-43,y+18,25,22);
+ }
  ctx.fillStyle='#302c27';ctx.fillRect(x+w/2-14,y+h-35,28,35);ctx.fillStyle='#c08b5b';ctx.fillRect(x+w/2-14,y+h-35,28,5);
 }
 function drawMilitaryBase(o){
@@ -512,14 +564,27 @@ function drawInterior(){
 }
 function tree(x,y){ctx.fillStyle='#17251e';ctx.fillRect(x-5,y+12,12,20);ctx.fillStyle='#315b3d';ctx.fillRect(x-19,y-8,38,30);ctx.fillStyle='#47764a';ctx.fillRect(x-11,y-16,22,14);ctx.fillStyle='#1d422f';ctx.fillRect(x+5,y+1,9,9);}
 function drawZombie(z){
+ const o=z.outfit||{shirt:'#557a4c',pants:'#263b32',skin:'#718d61'};
  ctx.save();ctx.translate(z.x,z.y);let sc=z.scale;ctx.scale(sc,sc);
- ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(-12,8,25,8);
- ctx.fillStyle=z.hit>0?'#fff':z.rarity.color;ctx.fillRect(z.boss?-19:-10,z.boss?-24:-15,z.boss?38:20,z.boss?43:26);
- ctx.fillStyle=z.boss?'#31533d':'#4c6047';ctx.fillRect(z.boss?-15:-8,z.boss?-43:-25,z.boss?30:16,z.boss?22:14);ctx.fillStyle='#d94d48';ctx.fillRect(z.boss?-10:-6,z.boss?-35:-20,4,4);ctx.fillRect(z.boss?6:3,z.boss?-35:-20,4,4);
- ctx.fillStyle='#26352a';ctx.fillRect(-13,-7,5,16);ctx.fillRect(8,-7,5,16);ctx.fillRect(-8,10,6,8);ctx.fillRect(3,10,6,8);
- ctx.fillStyle='#f4e6ba';ctx.fillRect(-4,-9,8,3);
- ctx.fillStyle='#101a19';ctx.fillRect(z.boss?-24:-14,z.boss?-52:-34,z.boss?48:28,5);ctx.fillStyle=z.rarity.color;ctx.fillRect(z.boss?-24:-14,z.boss?-52:-34,(z.boss?48:28)*Math.max(0,z.hp/z.maxHp),5);
- if(z.boss||z.rarity.reward>=75){ctx.fillStyle=z.rarity.color;ctx.font=z.boss?'bold 12px monospace':'9px monospace';ctx.textAlign='center';ctx.fillText(z.boss?z.name:z.rarity.name,0,z.boss?-59:-39)}
+ ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(-13,10,27,7);
+ // Piernas y ropa.
+ ctx.fillStyle=o.pants||'#263b32';ctx.fillRect(-10,5,7,13);ctx.fillRect(3,5,7,13);
+ ctx.fillStyle=o.shirt||'#557a4c';ctx.fillRect(-12,-10,24,19);
+ ctx.fillStyle=o.vest||o.badge||'#3c5940';
+ if(o.vest){ctx.fillRect(-10,-8,5,15);ctx.fillRect(5,-8,5,15);}
+ if(o.badge){ctx.fillStyle=o.badge;ctx.fillRect(5,-7,4,4);}
+ // Cabeza, cara y accesorios.
+ ctx.fillStyle=o.skin||'#718d61';ctx.fillRect(-8,-25,16,16);
+ ctx.fillStyle='#d94d48';ctx.fillRect(-5,-19,3,3);ctx.fillRect(3,-19,3,3);
+ ctx.fillStyle='#26352a';ctx.fillRect(-3,-12,7,2);
+ if(o.hat){ctx.fillStyle=o.hat;ctx.fillRect(-10,-28,20,5);ctx.fillRect(-6,-33,12,6);}
+ if(o.cross){ctx.fillStyle=o.cross;ctx.fillRect(-2,-8,4,10);ctx.fillRect(-6,-4,12,4);}
+ if(o.mask){ctx.fillStyle=o.mask;ctx.fillRect(-7,-14,14,5);ctx.fillStyle='#718d85';ctx.fillRect(-5,-13,3,2);ctx.fillRect(2,-13,3,2);}
+ if(z.hit>0){ctx.fillStyle='#fff';ctx.fillRect(-12,-10,24,19);}
+ // Los jefes conservan su tamaño y llevan una silueta reforzada.
+ if(z.boss){ctx.strokeStyle='#ff4242';ctx.lineWidth=3;ctx.strokeRect(-17,-35,34,54);ctx.fillStyle='#ff4242';ctx.fillRect(-13,-39,26,5);}
+ ctx.fillStyle='#101a19';ctx.fillRect(-14,-39,28,5);ctx.fillStyle=z.rarity.color;ctx.fillRect(-14,-39,28*Math.max(0,z.hp/z.maxHp),5);
+ if(z.boss||z.rarity.reward>=75){ctx.fillStyle=z.rarity.color;ctx.font=z.boss?'bold 12px monospace':'9px monospace';ctx.textAlign='center';ctx.fillText(z.boss?z.name:z.rarity.name,0,z.boss?-46:-44);}
  ctx.restore();
 }
 function drawPet(){
