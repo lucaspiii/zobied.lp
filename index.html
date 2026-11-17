@@ -47,9 +47,9 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated;cursor:cro
 .touchLabel{position:absolute;left:0;right:0;top:-22px;text-align:center;color:#eaf7ee;font-size:10px;text-shadow:1px 2px #000;font-weight:bold}
 .touchAction{position:absolute;pointer-events:auto;touch-action:none;border-radius:50%;width:66px;height:66px;padding:0;background:#ffcf58;border:3px solid #fff0b0;box-shadow:0 4px 0 #946d25;color:#182018;font-size:11px}
 #fireTouch{right:150px;bottom:42px;width:76px;height:76px;background:#ff7770;box-shadow:0 4px 0 #8e3838;color:#240d0d}
-#reloadTouch{right:162px;bottom:130px}#runTouch{left:145px;bottom:30px;background:#75cfff;box-shadow:0 4px 0 #326b91}#enterTouch{right:22px;bottom:215px;background:#8be36d;box-shadow:0 4px 0 #477d3c;width:68px;height:54px;border-radius:12px}
+#reloadTouch{right:162px;bottom:130px}#runTouch{left:145px;bottom:30px;background:#75cfff;box-shadow:0 4px 0 #326b91}#enterTouch{right:22px;bottom:215px;background:#8be36d;box-shadow:0 4px 0 #477d3c;width:68px;height:54px;border-radius:12px}#mapTouch{right:22px;bottom:285px;background:#68d8ff;box-shadow:0 4px 0 #326b91;width:68px;height:48px;border-radius:12px}
 @media (pointer:coarse),(max-width:800px){#abilityHud{position:absolute;left:50%;top:155px;transform:translateX(-50%);gap:3px}#abilityHud .ability{font-size:9px;min-width:65px;padding:6px 4px}#rightHud{top:82px}#touchControls{display:block}#pauseHint{display:none}#topbar{top:6px;left:6px;right:6px;gap:4px;justify-content:center}.stat{min-width:0;flex:1;padding:6px 7px}.stat small{font-size:9px;margin-bottom:2px}.stat strong{font-size:14px}.bar{height:6px;margin-top:3px}#rightHud{top:82px;right:6px;gap:4px}#rightHud .panel{padding:6px}#rightHud small{font-size:9px}#rightHud strong{font-size:12px}#bottomHud{top:82px;bottom:auto;left:6px;transform:none;display:flex;gap:5px;align-items:start}#weaponBox{min-width:112px;padding:6px}#weaponName{font-size:11px}#weaponBox strong{font-size:13px}#weaponBox small{font-size:8px}#bottomHud button{font-size:10px;padding:8px 9px}#crosshair{display:none}#toast{top:30%;font-size:17px;white-space:normal;width:90%}.card{padding:20px 14px}.logo{letter-spacing:-2px}.help{font-size:11px}}
-@media (max-width:430px){.stick{width:96px;height:96px;bottom:18px}.knob{width:42px;height:42px}#moveStick{left:10px}#aimStick{right:10px}#fireTouch{right:118px;bottom:28px;width:66px;height:66px}#reloadTouch{right:125px;bottom:105px;width:54px;height:54px}#runTouch{left:112px;bottom:20px;width:54px;height:54px}#enterTouch{right:8px;bottom:178px;width:58px;height:48px}}
+@media (max-width:430px){.stick{width:96px;height:96px;bottom:18px}.knob{width:42px;height:42px}#moveStick{left:10px}#aimStick{right:10px}#fireTouch{right:118px;bottom:28px;width:66px;height:66px}#reloadTouch{right:125px;bottom:105px;width:54px;height:54px}#runTouch{left:112px;bottom:20px;width:54px;height:54px}#enterTouch{right:8px;bottom:178px;width:58px;height:48px}#mapTouch{right:8px;bottom:232px;width:58px;height:44px}}
 #notice{position:absolute;left:50%;top:16%;transform:translateX(-50%);padding:10px 18px;background:#14242d;border:2px solid var(--gold);color:var(--gold);font-weight:bold;display:none}
 @media(max-width:650px){#topbar{gap:5px;flex-wrap:wrap}.stat{min-width:90px;padding:7px}.stat strong{font-size:15px}#rightHud{top:112px}.panel{padding:7px}#bottomHud{bottom:8px}#pauseHint{display:none}}
 
@@ -72,7 +72,7 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated;cursor:cro
 .leader-empty{text-align:center;padding:22px;color:#b5c9c9}
 @media(max-width:500px){.character-art{height:125px}.character-art svg{height:120px}.items{grid-template-columns:repeat(auto-fit,minmax(145px,1fr))}.leader-table{font-size:11px}.leader-table th,.leader-table td{padding:8px 4px}}
 
-</style>
+.map-open #topbar,.map-open #rightHud,.map-open #bottomHud,.map-open #pauseHint,.map-open #crosshair{display:none!important}\n</style>
 </head>
 <body>
 <div id="game">
@@ -90,11 +90,11 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated;cursor:cro
   <div id="bottomHud">
    <div class="panel" id="weaponBox"><div id="weaponName">PISTOLA</div><div><strong id="ammoText">12 / 48</strong></div><small>CLIC IZQ. DISPARAR · R RECARGAR</small></div>
    <button class="gold" id="shopBtn" style="pointer-events:auto">TIENDA [B]</button>
-   <button class="secondary" id="pauseBtn" style="pointer-events:auto">PAUSA [P]</button><div id="abilityHud"><button class="ability" id="pulseBtn">⚡ PULSO<small id="pulseCd">Q · PULSO</small></button><button class="ability" id="dashBtn">💨 DASH<small id="dashCd">E · DASH</small></button><button class="ability" id="healBtn">❤️ CURAR<small id="healCd">F · LISTO</small></button></div>
+   <button class="secondary" id="pauseBtn" style="pointer-events:auto">PAUSA [P]</button><button class="secondary" id="mapBtn" style="pointer-events:auto">MAPA [M]</button><div id="abilityHud"><button class="ability" id="pulseBtn">⚡ PULSO<small id="pulseCd">Q · PULSO</small></button><button class="ability" id="dashBtn">💨 DASH<small id="dashCd">E · DASH</small></button><button class="ability" id="healBtn">❤️ CURAR<small id="healCd">F · LISTO</small></button></div>
   </div>
-  <div id="toast"></div><div id="crosshair"></div><div id="pauseHint">WASD: moverte · MOUSE: apuntar · CLIC: disparar · SHIFT: correr · G: entrar/salir · M: mapa · B: tienda · P: pausa · Q: pulso · E: interactuar · F: curar</div>
+  <div id="toast"></div><div id="crosshair"></div><div id="pauseHint">WASD: moverte · MOUSE: apuntar · CLIC: disparar · SHIFT: correr · G: entrar/salir · M: mapa · B: tienda · P: pausa · Q: pulso · E: dash · F: curar</div>
   <div id="notice"></div>
-  <div id="touchControls"><div class="stick" id="moveStick"><span class="touchLabel">MOVER</span><div class="knob"></div></div><div class="stick" id="aimStick"><span class="touchLabel">APUNTAR</span><div class="knob"></div></div><button class="touchAction" id="fireTouch">DISPARAR</button><button class="touchAction" id="reloadTouch">RECARGAR</button><button class="touchAction" id="runTouch">CORRER</button><button class="touchAction" id="enterTouch">ENTRAR</button></div>
+  <div id="touchControls"><div class="stick" id="moveStick"><span class="touchLabel">MOVER</span><div class="knob"></div></div><div class="stick" id="aimStick"><span class="touchLabel">APUNTAR</span><div class="knob"></div></div><button class="touchAction" id="fireTouch">DISPARAR</button><button class="touchAction" id="reloadTouch">RECARGAR</button><button class="touchAction" id="runTouch">CORRER</button><button class="touchAction" id="enterTouch">ENTRAR</button><button class="touchAction" id="mapTouch">MAPA</button></div>
  </div>
  <div id="overlay">
   <div class="card">
@@ -138,7 +138,7 @@ const keys={},mouse={x:innerWidth/2,y:innerHeight/2,down:false};
 let insideBuilding=null,mapOpen=false;const exploredBlocks=new Set();
 const touchMove={x:0,y:0},touchAim={x:0,y:0};let touchFire=false,touchRun=false;
 addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase()))e.preventDefault();if(e.repeat)return;
- if(e.key.toLowerCase()==='r')reload();if(e.key.toLowerCase()==='b')toggleShop();if(e.key.toLowerCase()==='p')togglePause();if(e.key.toLowerCase()==='q')useAbility('pulse');if(e.key.toLowerCase()==='e')useAbility('dash');if(e.key.toLowerCase()==='f')useAbility('heal');if(e.key.toLowerCase()==='g')interactBuilding();if(e.key.toLowerCase()==='m')mapOpen=!mapOpen;if(e.key==='Escape'&&mapOpen)mapOpen=false;});
+ if(e.key.toLowerCase()==='r')reload();if(e.key.toLowerCase()==='b')toggleShop();if(e.key.toLowerCase()==='p')togglePause();if(e.key.toLowerCase()==='q')useAbility('pulse');if(e.key.toLowerCase()==='e')useAbility('dash');if(e.key.toLowerCase()==='f')useAbility('heal');if(e.key.toLowerCase()==='g')interactBuilding();if(e.key.toLowerCase()==='m')toggleMap();if(e.key==='Escape'&&mapOpen)mapOpen=false;});
 addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 canvas.addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
 canvas.addEventListener('mousedown',e=>{if(e.button===0)mouse.down=true});
@@ -205,6 +205,7 @@ function characterSprite(c){
  ${gold?'<rect x="45" y="25" width="38" height="8" fill="#e9b934"/><rect x="49" y="14" width="7" height="13" fill="#fff0a1"/><rect x="61" y="10" width="7" height="17" fill="#fff0a1"/><rect x="73" y="14" width="7" height="13" fill="#fff0a1"/><rect x="48" y="81" width="32" height="6" fill="#fff0a1"/>':''}
  <rect x="86" y="72" width="7" height="29" fill="#9a7954"/><rect x="91" y="67" width="7" height="25" fill="#c7d2c6"/></svg>`;
 }
+function toggleMap(){if(state!=='playing'&&state!=='paused')return;mapOpen=!mapOpen;$('hud').classList.toggle('map-open',mapOpen);}
 function renderShop(){
  $('shopMoney').textContent='Saldo de tu cuenta: $'+money.toLocaleString('es-AR');
  $('shopItems').innerHTML='';
@@ -246,7 +247,7 @@ function renderLeaderboard(){
 }
 $('recordsBtn').onclick=()=>{$('leaderboard').classList.remove('hidden');renderLeaderboard()};
 $('closeRecords').onclick=()=>$('leaderboard').classList.add('hidden');
-$('pulseBtn').onclick=()=>useAbility('pulse');$('dashBtn').onclick=()=>useAbility('dash');$('healBtn').onclick=()=>useAbility('heal');$('shopBtn').onclick=toggleShop;$('menuShopBtn').onclick=toggleShop;$('closeShop').onclick=toggleShop;$('pauseBtn').onclick=togglePause;
+$('pulseBtn').onclick=()=>useAbility('pulse');$('dashBtn').onclick=()=>useAbility('dash');$('healBtn').onclick=()=>useAbility('heal');$('shopBtn').onclick=toggleShop;$('mapBtn').onclick=toggleMap;$('mapTouch').onclick=toggleMap;$('menuShopBtn').onclick=toggleShop;$('closeShop').onclick=toggleShop;$('pauseBtn').onclick=togglePause;
 $('startBtn').onclick=()=>{if(state==='paused')togglePause();else start()};
 // En pantallas táctiles, la armería y pausa permanecen accesibles desde el HUD.
 $('howBtn').onclick=()=>{$('helpText').innerHTML='WASD: moverte · Mouse: apuntar · Clic izquierdo: disparar<br>SHIFT: correr · R: recargar · B: tienda · P: pausa · Q: pulso · G: entrar/salir · M: mapa · F: curar';};
@@ -344,8 +345,14 @@ function draw(){
  if(!player){drawMenuBg();return}
  let shakeX=(Math.random()-.5)*cameraShake,shakeY=(Math.random()-.5)*cameraShake;
  // Cámara detrás del personaje: el mundo se desplaza según su posición y orientación.
- ctx.save();ctx.translate(W/2-player.x+shakeX,H*.66-player.y+shakeY);
- drawWorld();
+ ctx.save();
+ if(insideBuilding){
+  ctx.translate(W/2,H*.58);ctx.scale(2.15,2.15);ctx.translate(-player.x,-player.y);
+  drawInterior();
+ }else{
+  ctx.translate(W/2-player.x+shakeX,H*.66-player.y+shakeY);
+  drawWorld();
+ }
  // proyectiles
  for(let b of bullets){ctx.fillStyle=b.color;ctx.fillRect(b.x-3,b.y-3,7,7)}
  // zombies
@@ -353,6 +360,7 @@ function draw(){
  particles.forEach(p=>{ctx.globalAlpha=Math.max(0,p.life/p.max);ctx.fillStyle=p.color;ctx.fillRect(p.x-p.size/2,p.y-p.size/2,p.size,p.size)});ctx.globalAlpha=1;
  drawPlayer();drawPet();
  ctx.restore();
+ drawMapUI();
  // crosshair
  $('crosshair').style.left=mouse.x+'px';$('crosshair').style.top=mouse.y+'px';
 }
@@ -401,16 +409,15 @@ function findNearbyBuilding(){
 function interactBuilding(){
  if(state!=='playing')return;
  if(insideBuilding){
-  const b=insideBuilding,doorX=b.x+b.w/2,doorY=b.y+b.h-22;
-  if(Math.hypot(player.x-doorX,player.y-doorY)<55){
-   insideBuilding=null;player.x=b.x+b.w/2;player.y=b.y+b.h+27;
-   showToast('SALISTE A LA CALLE');
-  }else showToast('ACERCATE A LA PUERTA PARA SALIR');
+  const b=insideBuilding;
+  insideBuilding=null;player.x=b.x+b.w/2;player.y=b.y+b.h+27;
+  if(pet){pet.x=player.x-28;pet.y=player.y+20;}
+  showToast('SALISTE A LA CALLE');
   return;
  }
  const b=findNearbyBuilding();
  if(!b){showToast('ACERCATE A LA PUERTA DE UNA CASA');return;}
- insideBuilding=b;player.x=b.x+b.w/2;player.y=b.y+b.h-25;
+ insideBuilding=b;player.x=b.x+b.w/2;player.y=b.y+b.h*.68;
  if(pet){pet.x=player.x-28;pet.y=player.y+20;}
  showToast(b.kind==='military'?'BASE MILITAR · EDIFICIO':'ENTRASTE AL EDIFICIO');
 }
@@ -490,8 +497,8 @@ function drawWatchTower(o){ctx.fillStyle='#343b37';ctx.fillRect(o.x+12,o.y+12,10
 function drawCar(x,y){ctx.fillStyle='#1b2527';ctx.fillRect(x-25,y-11,52,25);ctx.fillStyle='#788c84';ctx.fillRect(x-21,y-9,43,19);ctx.fillStyle='#263b42';ctx.fillRect(x-12,y-8,23,17);ctx.fillStyle='#111';ctx.fillRect(x-18,y-14,10,4);ctx.fillRect(x+9,y-14,10,4);}
 function drawInterior(){
  const b=insideBuilding,x=b.x,y=b.y,w=b.w,h=b.h;
- ctx.fillStyle='#182522';ctx.fillRect(x-30,y-30,w+60,h+60);
- ctx.fillStyle=b.kind==='military'?'#59685c':'#857f6b';ctx.fillRect(x,y,w,h);
+ ctx.fillStyle='#111a1b';ctx.fillRect(x-50,y-50,w+100,h+100);
+ ctx.fillStyle=b.kind==='military'?'#59685c':'#857f6b';ctx.fillRect(x-10,y-10,w+20,h+20);ctx.fillStyle=b.kind==='military'?'#65796a':'#918a73';ctx.fillRect(x,y,w,h);
  for(let tx=x+8;tx<x+w-8;tx+=28)for(let ty=y+8;ty<y+h-8;ty+=28){ctx.fillStyle=((tx+ty)/28|0)%2?'#777665':'#817e6c';ctx.fillRect(tx,ty,26,26);}
  ctx.fillStyle='#353e3a';ctx.fillRect(x,y,w,12);ctx.fillRect(x,y,12,h);ctx.fillRect(x+w-12,y,12,h);
  const cx=x+w/2;ctx.fillRect(x,y+h-12,w/2-24,12);ctx.fillRect(cx+24,y+h-12,w/2-24,12);
@@ -501,7 +508,7 @@ function drawInterior(){
  ctx.fillStyle='#5a4535';ctx.fillRect(x+w*.65,y+h*.24,Math.min(35,w*.25),26);
  ctx.fillStyle='#9a805d';ctx.fillRect(x+w*.34,y+h*.58,Math.min(42,w*.32),24);
  ctx.fillStyle='#c08b5b';ctx.fillRect(cx-20,y+h-13,40,4);
- ctx.fillStyle='#f3e9c7';ctx.font='10px monospace';ctx.textAlign='center';ctx.fillText('G · SALIR',cx,y+h+18);
+ ctx.fillStyle='#f3e9c7';ctx.font='bold 11px monospace';ctx.textAlign='center';ctx.fillText('G · SALIR',cx,y+h+24);
 }
 function tree(x,y){ctx.fillStyle='#17251e';ctx.fillRect(x-5,y+12,12,20);ctx.fillStyle='#315b3d';ctx.fillRect(x-19,y-8,38,30);ctx.fillStyle='#47764a';ctx.fillRect(x-11,y-16,22,14);ctx.fillStyle='#1d422f';ctx.fillRect(x+5,y+1,9,9);}
 function drawZombie(z){
@@ -572,9 +579,10 @@ function drawMapUI(){
  const size=Math.min(164,Math.max(112,W*.22)),mx=W-size-14,my=H<560?150:176;
  drawMapPanel(mx,my,size,2.25,false);
  if(mapOpen){
-  ctx.save();ctx.fillStyle='rgba(3,9,12,.82)';ctx.fillRect(0,0,W,H);
-  const big=Math.min(W-36,H-100);drawMapPanel((W-big)/2,(H-big)/2,big,5.2,true);
-  ctx.fillStyle='#f4f7e9';ctx.font='bold 14px monospace';ctx.textAlign='center';ctx.fillText('MAPA DE LA CIUDAD · M PARA CERRAR',W/2,(H-big)/2-14);
+  ctx.save();ctx.fillStyle='rgba(3,9,12,.96)';ctx.fillRect(0,0,W,H);
+  const big=Math.min(W-56,H-120);drawMapPanel((W-big)/2,(H-big)/2,big,4.2,true);
+  ctx.fillStyle='#f4f7e9';ctx.font='bold 16px monospace';ctx.textAlign='center';ctx.fillText('MAPA DE LA CIUDAD · M PARA CERRAR',W/2,(H-big)/2-20);
+  ctx.fillStyle='#8be36d';ctx.font='bold 11px monospace';ctx.fillText('VERDE: BASE MILITAR  ·  PUNTO BLANCO: TU POSICIÓN  ·  EXPLORÁ PARA DESCUBRIR MÁS',W/2,(H+big)/2+24);
   ctx.restore();
  }
 }
