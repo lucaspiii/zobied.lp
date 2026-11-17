@@ -47,9 +47,9 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated;cursor:cro
 .touchLabel{position:absolute;left:0;right:0;top:-22px;text-align:center;color:#eaf7ee;font-size:10px;text-shadow:1px 2px #000;font-weight:bold}
 .touchAction{position:absolute;pointer-events:auto;touch-action:none;border-radius:50%;width:66px;height:66px;padding:0;background:#ffcf58;border:3px solid #fff0b0;box-shadow:0 4px 0 #946d25;color:#182018;font-size:11px}
 #fireTouch{right:150px;bottom:42px;width:76px;height:76px;background:#ff7770;box-shadow:0 4px 0 #8e3838;color:#240d0d}
-#reloadTouch{right:162px;bottom:130px}#runTouch{left:145px;bottom:30px;background:#75cfff;box-shadow:0 4px 0 #326b91}
+#reloadTouch{right:162px;bottom:130px}#runTouch{left:145px;bottom:30px;background:#75cfff;box-shadow:0 4px 0 #326b91}#enterTouch{right:22px;bottom:215px;background:#8be36d;box-shadow:0 4px 0 #477d3c;width:68px;height:54px;border-radius:12px}
 @media (pointer:coarse),(max-width:800px){#abilityHud{position:absolute;left:50%;top:155px;transform:translateX(-50%);gap:3px}#abilityHud .ability{font-size:9px;min-width:65px;padding:6px 4px}#rightHud{top:82px}#touchControls{display:block}#pauseHint{display:none}#topbar{top:6px;left:6px;right:6px;gap:4px;justify-content:center}.stat{min-width:0;flex:1;padding:6px 7px}.stat small{font-size:9px;margin-bottom:2px}.stat strong{font-size:14px}.bar{height:6px;margin-top:3px}#rightHud{top:82px;right:6px;gap:4px}#rightHud .panel{padding:6px}#rightHud small{font-size:9px}#rightHud strong{font-size:12px}#bottomHud{top:82px;bottom:auto;left:6px;transform:none;display:flex;gap:5px;align-items:start}#weaponBox{min-width:112px;padding:6px}#weaponName{font-size:11px}#weaponBox strong{font-size:13px}#weaponBox small{font-size:8px}#bottomHud button{font-size:10px;padding:8px 9px}#crosshair{display:none}#toast{top:30%;font-size:17px;white-space:normal;width:90%}.card{padding:20px 14px}.logo{letter-spacing:-2px}.help{font-size:11px}}
-@media (max-width:430px){.stick{width:96px;height:96px;bottom:18px}.knob{width:42px;height:42px}#moveStick{left:10px}#aimStick{right:10px}#fireTouch{right:118px;bottom:28px;width:66px;height:66px}#reloadTouch{right:125px;bottom:105px;width:54px;height:54px}#runTouch{left:112px;bottom:20px;width:54px;height:54px}}
+@media (max-width:430px){.stick{width:96px;height:96px;bottom:18px}.knob{width:42px;height:42px}#moveStick{left:10px}#aimStick{right:10px}#fireTouch{right:118px;bottom:28px;width:66px;height:66px}#reloadTouch{right:125px;bottom:105px;width:54px;height:54px}#runTouch{left:112px;bottom:20px;width:54px;height:54px}#enterTouch{right:8px;bottom:178px;width:58px;height:48px}}
 #notice{position:absolute;left:50%;top:16%;transform:translateX(-50%);padding:10px 18px;background:#14242d;border:2px solid var(--gold);color:var(--gold);font-weight:bold;display:none}
 @media(max-width:650px){#topbar{gap:5px;flex-wrap:wrap}.stat{min-width:90px;padding:7px}.stat strong{font-size:15px}#rightHud{top:112px}.panel{padding:7px}#bottomHud{bottom:8px}#pauseHint{display:none}}
 
@@ -92,9 +92,9 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated;cursor:cro
    <button class="gold" id="shopBtn" style="pointer-events:auto">TIENDA [B]</button>
    <button class="secondary" id="pauseBtn" style="pointer-events:auto">PAUSA [P]</button><div id="abilityHud"><button class="ability" id="pulseBtn">⚡ PULSO<small id="pulseCd">Q · PULSO</small></button><button class="ability" id="dashBtn">💨 DASH<small id="dashCd">E · DASH</small></button><button class="ability" id="healBtn">❤️ CURAR<small id="healCd">F · LISTO</small></button></div>
   </div>
-  <div id="toast"></div><div id="crosshair"></div><div id="pauseHint">WASD: moverte · MOUSE: apuntar · CLIC: disparar · SHIFT: correr · B: tienda · P: pausa · Q: pulso · E: dash · F: curar</div>
+  <div id="toast"></div><div id="crosshair"></div><div id="pauseHint">WASD: moverte · MOUSE: apuntar · CLIC: disparar · SHIFT: correr · G: entrar/salir · M: mapa · B: tienda · P: pausa · Q: pulso · E: interactuar · F: curar</div>
   <div id="notice"></div>
-  <div id="touchControls"><div class="stick" id="moveStick"><span class="touchLabel">MOVER</span><div class="knob"></div></div><div class="stick" id="aimStick"><span class="touchLabel">APUNTAR</span><div class="knob"></div></div><button class="touchAction" id="fireTouch">DISPARAR</button><button class="touchAction" id="reloadTouch">RECARGAR</button><button class="touchAction" id="runTouch">CORRER</button></div>
+  <div id="touchControls"><div class="stick" id="moveStick"><span class="touchLabel">MOVER</span><div class="knob"></div></div><div class="stick" id="aimStick"><span class="touchLabel">APUNTAR</span><div class="knob"></div></div><button class="touchAction" id="fireTouch">DISPARAR</button><button class="touchAction" id="reloadTouch">RECARGAR</button><button class="touchAction" id="runTouch">CORRER</button><button class="touchAction" id="enterTouch">ENTRAR</button></div>
  </div>
  <div id="overlay">
   <div class="card">
@@ -107,7 +107,7 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated;cursor:cro
     <button class="secondary" id="howBtn">CÓMO JUGAR</button>
     <button class="secondary" id="recordsBtn">🏆 PUNTUACIONES</button>
    </div>
-   <div class="help" id="helpText">WASD para moverte · Mouse para apuntar · Clic izquierdo para disparar<br>Derrotá zombies, ganá dinero y comprá armas mejores.</div>
+   <div class="help" id="helpText">WASD para moverte · Mouse para apuntar · Clic para disparar · G para entrar a edificios · M para abrir el mapa.<br>Explorá la ciudad y encontrá la base militar.</div>
   </div>
  </div>
 
@@ -135,9 +135,10 @@ let W=0,H=0,dpr=1;
 function resize(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*dpr;canvas.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}
 addEventListener('resize',resize);resize();
 const keys={},mouse={x:innerWidth/2,y:innerHeight/2,down:false};
+let insideBuilding=null,mapOpen=false;const exploredBlocks=new Set();
 const touchMove={x:0,y:0},touchAim={x:0,y:0};let touchFire=false,touchRun=false;
 addEventListener('keydown',e=>{keys[e.key.toLowerCase()]=true;if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(e.key.toLowerCase()))e.preventDefault();if(e.repeat)return;
- if(e.key.toLowerCase()==='r')reload();if(e.key.toLowerCase()==='b')toggleShop();if(e.key.toLowerCase()==='p')togglePause();if(e.key.toLowerCase()==='q')useAbility('pulse');if(e.key.toLowerCase()==='e')useAbility('dash');if(e.key.toLowerCase()==='f')useAbility('heal');});
+ if(e.key.toLowerCase()==='r')reload();if(e.key.toLowerCase()==='b')toggleShop();if(e.key.toLowerCase()==='p')togglePause();if(e.key.toLowerCase()==='q')useAbility('pulse');if(e.key.toLowerCase()==='e')useAbility('dash');if(e.key.toLowerCase()==='f')useAbility('heal');if(e.key.toLowerCase()==='g')interactBuilding();if(e.key.toLowerCase()==='m')mapOpen=!mapOpen;if(e.key==='Escape'&&mapOpen)mapOpen=false;});
 addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
 canvas.addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY;});
 canvas.addEventListener('mousedown',e=>{if(e.button===0)mouse.down=true});
@@ -145,7 +146,7 @@ addEventListener('mouseup',e=>{if(e.button===0)mouse.down=false});
 function bindStick(id,out,isAim){const el=$(id),knob=el.querySelector('.knob');let pid=null,rect;function set(e){rect=el.getBoundingClientRect();let dx=e.clientX-(rect.left+rect.width/2),dy=e.clientY-(rect.top+rect.height/2),max=rect.width*.34,len=Math.hypot(dx,dy)||1,k=Math.min(1,max/len);out.x=dx/len*k;out.y=dy/len*k;knob.style.left=`${50+out.x*34}%`;knob.style.top=`${50+out.y*34}%`;if(isAim&&Math.hypot(out.x,out.y)>.18){let a=Math.atan2(out.y,out.x);mouse.x=W/2+Math.cos(a)*180;mouse.y=H*.66+Math.sin(a)*180;}}function end(){pid=null;out.x=out.y=0;knob.style.left='50%';knob.style.top='50%'}el.addEventListener('pointerdown',e=>{e.preventDefault();pid=e.pointerId;el.setPointerCapture(pid);set(e)});el.addEventListener('pointermove',e=>{if(pid===e.pointerId){e.preventDefault();set(e)}});el.addEventListener('pointerup',end);el.addEventListener('pointercancel',end)}
 bindStick('moveStick',touchMove,false);bindStick('aimStick',touchAim,true);
 $('fireTouch').addEventListener('pointerdown',e=>{e.preventDefault();touchFire=true;});['pointerup','pointercancel','pointerleave'].forEach(ev=>$('fireTouch').addEventListener(ev,()=>touchFire=false));
-$('reloadTouch').addEventListener('pointerdown',e=>{e.preventDefault();reload()});$('runTouch').addEventListener('pointerdown',e=>{e.preventDefault();touchRun=true});['pointerup','pointercancel','pointerleave'].forEach(ev=>$('runTouch').addEventListener(ev,()=>touchRun=false));
+$('enterTouch').addEventListener('pointerdown',e=>{e.preventDefault();interactBuilding()});$('reloadTouch').addEventListener('pointerdown',e=>{e.preventDefault();reload()});$('runTouch').addEventListener('pointerdown',e=>{e.preventDefault();touchRun=true});['pointerup','pointercancel','pointerleave'].forEach(ev=>$('runTouch').addEventListener(ev,()=>touchRun=false));
 const weapons=[
  {id:'pistol',name:'Pistola',price:0,damage:25,rate:330,mag:12,reserve:60,reload:900,spread:.035,desc:'Equilibrada. Ideal para empezar.'},
  {id:'shotgun',name:'Escopeta',price:450,damage:18,rate:780,mag:6,reserve:30,reload:1200,pellets:6,spread:.23,desc:'Varios perdigones por disparo.'},
@@ -177,7 +178,7 @@ const rarities=[
  {name:'ÉPICO',color:'#ffbd58',hp:260,speed:27,reward:200,scale:1.42},
  {name:'LEGENDARIO',color:'#ff6565',hp:420,speed:42,reward:500,scale:1.55}
 ];
-function reset(){player={x:0,y:0,hp:permanentMaxHp,maxHp:permanentMaxHp,speed:190,angle:0,facing:1,invuln:0};zombies=[];bullets=[];particles=[];kills=0;wave=1;spawnLeft=7;spawnTimer=1;bossWave=false;pet={x:-35,y:25};abilityCooldowns={pulse:0,dash:0,heal:0};if(!owned.has(weaponId))weaponId='pistol';weapons.forEach(w=>ammo[w.id]={mag:w.mag,reserve:w.reserve});saveProfile();}
+function reset(){insideBuilding=null;mapOpen=false;exploredBlocks.clear();player={x:0,y:0,hp:permanentMaxHp,maxHp:permanentMaxHp,speed:190,angle:0,facing:1,invuln:0};zombies=[];bullets=[];particles=[];kills=0;wave=1;spawnLeft=7;spawnTimer=1;bossWave=false;pet={x:-35,y:25};abilityCooldowns={pulse:0,dash:0,heal:0};if(!owned.has(weaponId))weaponId='pistol';weapons.forEach(w=>ammo[w.id]={mag:w.mag,reserve:w.reserve});saveProfile();}
 function currentWeapon(){return weapons.find(w=>w.id===weaponId)}
 function useAbility(type){if(state!=='playing'||abilityCooldowns[type]>0)return;
  if(type==='pulse'){let hit=0;for(const z of zombies){const dx=z.x-player.x,dy=z.y-player.y,dist=Math.hypot(dx,dy);
@@ -248,7 +249,7 @@ $('closeRecords').onclick=()=>$('leaderboard').classList.add('hidden');
 $('pulseBtn').onclick=()=>useAbility('pulse');$('dashBtn').onclick=()=>useAbility('dash');$('healBtn').onclick=()=>useAbility('heal');$('shopBtn').onclick=toggleShop;$('menuShopBtn').onclick=toggleShop;$('closeShop').onclick=toggleShop;$('pauseBtn').onclick=togglePause;
 $('startBtn').onclick=()=>{if(state==='paused')togglePause();else start()};
 // En pantallas táctiles, la armería y pausa permanecen accesibles desde el HUD.
-$('howBtn').onclick=()=>{$('helpText').innerHTML='WASD: moverte · Mouse: apuntar · Clic izquierdo: disparar<br>SHIFT: correr · R: recargar · B: tienda · P: pausa · Q: pulso · E: dash · F: curar';};
+$('howBtn').onclick=()=>{$('helpText').innerHTML='WASD: moverte · Mouse: apuntar · Clic izquierdo: disparar<br>SHIFT: correr · R: recargar · B: tienda · P: pausa · Q: pulso · G: entrar/salir · M: mapa · F: curar';};
 function reload(){if(state!=='playing')return;let w=currentWeapon(),a=ammo[w.id];if(a.mag===w.mag||a.reserve<=0)return;showToast('RECARGANDO...');setTimeout(()=>{if(state!=='playing')return;let n=Math.min(w.mag-a.mag,a.reserve);a.mag+=n;a.reserve-=n;updateHud()},w.reload)}
 function spawnZombie(){
  // Buscar un punto de aparición libre, fuera de edificios y árboles.
@@ -290,7 +291,7 @@ function shoot(){
 }
 function addBurst(x,y,color,n=8){for(let i=0;i<n;i++){let a=Math.random()*Math.PI*2,s=30+Math.random()*130;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:.25+Math.random()*.4,max:.65,color,size:2+Math.random()*4})}}
 function update(dt){
- worldTime+=dt;for(const k of Object.keys(abilityCooldowns))abilityCooldowns[k]=Math.max(0,abilityCooldowns[k]-dt);
+ worldTime+=dt;for(let ex=-1;ex<=1;ex++)for(let ey=-1;ey<=1;ey++)exploredBlocks.add((Math.floor(player.x/BLOCK)+ex)+','+(Math.floor(player.y/BLOCK)+ey));for(const k of Object.keys(abilityCooldowns))abilityCooldowns[k]=Math.max(0,abilityCooldowns[k]-dt);
  let dx=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0)+touchMove.x,dy=(keys.s||keys.arrowdown?1:0)-(keys.w||keys.arrowup?1:0)+touchMove.y,len=Math.hypot(dx,dy)||1;
  let speed=player.speed*(keys.shift||touchRun?1.45:1),stepX=dx/len*speed*dt,stepY=dy/len*speed*dt;
  // Colisión del jugador contra edificios y árboles; permite deslizarse por los bordes.
@@ -356,61 +357,153 @@ function draw(){
  $('crosshair').style.left=mouse.x+'px';$('crosshair').style.top=mouse.y+'px';
 }
 // Ciudad procedural por sectores: el mapa continúa en todas las direcciones.
+
 const BLOCK=620,ROAD=140;
 function worldObjects(x1,y1,x2,y2){
  const out=[],ix1=Math.floor(x1/BLOCK)-1,ix2=Math.floor(x2/BLOCK)+1,iy1=Math.floor(y1/BLOCK)-1,iy2=Math.floor(y2/BLOCK)+1;
  for(let ix=ix1;ix<=ix2;ix++)for(let iy=iy1;iy<=iy2;iy++){
-  const ox=ix*BLOCK,oy=iy*BLOCK,theme=((ix*7+iy*11)%4+4)%4;
-  if(theme===0){out.push({type:'building',x:ox+105,y:oy+105,w:138,h:150},{type:'building',x:ox+365,y:oy+350,w:138,h:150},{type:'tree',x:ox+430,y:oy+150,r:19},{type:'tree',x:ox+170,y:oy+535,r:19});}
-  else if(theme===1){out.push({type:'building',x:ox+95,y:oy+100,w:105,h:125},{type:'building',x:ox+405,y:oy+105,w:105,h:125},{type:'tree',x:ox+260,y:oy+190,r:22},{type:'tree',x:ox+350,y:oy+430,r:22},{type:'tree',x:ox+175,y:oy+445,r:22});}
-  else if(theme===2){out.push({type:'building',x:ox+95,y:oy+100,w:180,h:125},{type:'building',x:ox+350,y:oy+385,w:155,h:110},{type:'tree',x:ox+435,y:oy+185,r:16},{type:'tree',x:ox+185,y:oy+475,r:16});}
-  else{out.push({type:'building',x:ox+100,y:oy+105,w:120,h:170},{type:'building',x:ox+380,y:oy+330,w:130,h:165},{type:'tree',x:ox+275,y:oy+155,r:17},{type:'tree',x:ox+320,y:oy+480,r:17});}
+  const ox=ix*BLOCK,oy=iy*BLOCK,zone=((ix*7+iy*11)%4+4)%4;
+  // La manzana inicial contiene la base militar principal.
+  if(ix===0&&iy===0){
+   out.push({type:'base',x:ox+190,y:oy+135,w:350,h:370});
+   out.push({type:'building',kind:'military',x:ox+285,y:oy+205,w:160,h:125});
+   out.push({type:'building',kind:'military',x:ox+455,y:oy+350,w:75,h:100});
+   out.push({type:'tower',x:ox+220,y:oy+175,w:35,h:35});
+   out.push({type:'tree',x:ox+125,y:oy+410,r:17});
+   continue;
+  }
+  if(zone===0){
+   out.push({type:'building',kind:'house',x:ox+100,y:oy+105,w:135,h:150},{type:'building',kind:'house',x:ox+380,y:oy+355,w:145,h:155});
+   out.push({type:'tree',x:ox+285,y:oy+170,r:20},{type:'tree',x:ox+300,y:oy+450,r:19},{type:'car',x:ox+270,y:oy+300});
+  }else if(zone===1){
+   out.push({type:'building',kind:'shop',x:ox+95,y:oy+105,w:180,h:125},{type:'building',kind:'house',x:ox+385,y:oy+370,w:125,h:135});
+   out.push({type:'tree',x:ox+300,y:oy+180,r:24},{type:'tree',x:ox+300,y:oy+460,r:22},{type:'car',x:ox+300,y:oy+290});
+  }else if(zone===2){
+   out.push({type:'building',kind:'warehouse',x:ox+95,y:oy+110,w:190,h:155},{type:'building',kind:'warehouse',x:ox+380,y:oy+360,w:160,h:145});
+   out.push({type:'car',x:ox+300,y:oy+300});
+  }else{
+   out.push({type:'building',kind:'house',x:ox+105,y:oy+110,w:125,h:170},{type:'building',kind:'house',x:ox+390,y:oy+350,w:135,h:155});
+   out.push({type:'tree',x:ox+290,y:oy+180,r:24},{type:'tree',x:ox+290,y:oy+450,r:22},{type:'car',x:ox+300,y:oy+300});
+  }
  }
  return out;
 }
+function findNearbyBuilding(){
+ if(!player)return null;
+ let best=null,bestD=58;
+ for(const o of worldObjects(player.x-100,player.y-100,player.x+100,player.y+100)){
+  if(o.type!=='building')continue;
+  const dx=o.x+o.w/2-player.x,dy=o.y+o.h-12-player.y,d=Math.hypot(dx,dy);
+  if(d<bestD){best=o;bestD=d;}
+ }
+ return best;
+}
+function interactBuilding(){
+ if(state!=='playing')return;
+ if(insideBuilding){
+  const b=insideBuilding,doorX=b.x+b.w/2,doorY=b.y+b.h-22;
+  if(Math.hypot(player.x-doorX,player.y-doorY)<55){
+   insideBuilding=null;player.x=b.x+b.w/2;player.y=b.y+b.h+27;
+   showToast('SALISTE A LA CALLE');
+  }else showToast('ACERCATE A LA PUERTA PARA SALIR');
+  return;
+ }
+ const b=findNearbyBuilding();
+ if(!b){showToast('ACERCATE A LA PUERTA DE UNA CASA');return;}
+ insideBuilding=b;player.x=b.x+b.w/2;player.y=b.y+b.h-25;
+ if(pet){pet.x=player.x-28;pet.y=player.y+20;}
+ showToast(b.kind==='military'?'BASE MILITAR · EDIFICIO':'ENTRASTE AL EDIFICIO');
+}
 function circleHitsWorld(x,y,r){
- const objects=worldObjects(x-r-5,y-r-5,x+r+5,y+r+5);
+ if(insideBuilding){
+  const b=insideBuilding,left=b.x+12,right=b.x+b.w-12,top=b.y+12,bottom=b.y+b.h-12,cx=b.x+b.w/2;
+  if(x-r<left||x+r>right||y-r<top||y+r>bottom)return true;
+  // Hueco de la puerta en la pared inferior.
+  if(y+r>bottom-5&&Math.abs(x-cx)>25)return true;
+  // Muebles sencillos dentro de las casas.
+  const furniture=[{x:b.x+b.w*.25,y:b.y+b.h*.30,w:28,h:24},{x:b.x+b.w*.68,y:b.y+b.h*.28,w:34,h:22},{x:b.x+b.w*.50,y:b.y+b.h*.60,w:25,h:20}];
+  for(const f of furniture){const px=Math.max(f.x,Math.min(x,f.x+f.w)),py=Math.max(f.y,Math.min(y,f.y+f.h));if((x-px)**2+(y-py)**2<r*r)return true;}
+  return false;
+ }
+ const objects=worldObjects(x-r-8,y-r-8,x+r+8,y+r+8);
  for(const o of objects){
   if(o.type==='building'){
+   // Deja libre la entrada de cada edificio.
+   const doorX=o.x+o.w/2,doorY=o.y+o.h-12;
+   if(Math.abs(x-doorX)<25&&y>o.y+o.h-24&&y<o.y+o.h+15)continue;
    const px=Math.max(o.x,Math.min(x,o.x+o.w)),py=Math.max(o.y,Math.min(y,o.y+o.h));
    if((x-px)**2+(y-py)**2<r*r)return true;
-  }else if(Math.hypot(x-o.x,y-o.y)<r+o.r)return true;
+  }else if(o.type==='tree'&&Math.hypot(x-o.x,y-o.y)<r+o.r)return true;
+  else if(o.type==='car'&&Math.abs(x-o.x)<28+r&&Math.abs(y-o.y)<15+r)return true;
+  else if(o.type==='tower'&&x>o.x-r&&x<o.x+o.w+r&&y>o.y-r&&y<o.y+o.h+r)return true;
  }
  return false;
 }
 function drawWorld(){
  const tile=64,left=player.x-W/2-100,top=player.y-H*.66-100,right=left+W+200,bottom=top+H+200;
- ctx.fillStyle='#233b31';ctx.fillRect(left,top,right-left,bottom-top);
+ ctx.fillStyle='#303d38';ctx.fillRect(left,top,right-left,bottom-top);
+ // Veredas y manzanas con paletas distintas según el barrio.
  for(let x=Math.floor(left/tile)*tile;x<right;x+=tile)for(let y=Math.floor(top/tile)*tile;y<bottom;y+=tile){
-  let n=(Math.abs(Math.floor(x/tile)*17+Math.floor(y/tile)*31))%7,zone=((Math.floor(x/BLOCK)*7+Math.floor(y/BLOCK)*11)%4+4)%4;const palettes=[['#294333','#20392f','#263f34'],['#34442d','#293a28','#405039'],['#343b40','#28353a','#3c4848'],['#3a3930','#2c332d','#454239']],pal=palettes[zone];ctx.fillStyle=n===0?pal[0]:n===1?pal[1]:pal[2];ctx.fillRect(x,y,tile-2,tile-2);
-  if(n===2){ctx.fillStyle='#3c5140';ctx.fillRect(x+15,y+18,3,3);ctx.fillRect(x+42,y+45,4,3)}
+  const gx=Math.floor(x/BLOCK),gy=Math.floor(y/BLOCK),zone=((gx*7+gy*11)%4+4)%4;
+  const palettes=[['#33463c','#2a3c34','#394a3e'],['#3b4540','#303a36','#46504a'],['#42413a','#343b36','#4b4840'],['#34443c','#293a33','#3c5141']];
+  const pal=palettes[zone],n=Math.abs(Math.floor(x/tile)*17+Math.floor(y/tile)*31)%7;
+  ctx.fillStyle=pal[n===0?0:n===1?1:2];ctx.fillRect(x,y,tile-2,tile-2);
  }
- // Calles en cuadrícula, repetidas sin límite y alineadas al mundo.
- const firstX=Math.floor(left/BLOCK)*BLOCK,lastX=right+BLOCK;
- const firstY=Math.floor(top/BLOCK)*BLOCK,lastY=bottom+BLOCK;
- ctx.fillStyle='#414844';
+ const firstX=Math.floor(left/BLOCK)*BLOCK,lastX=right+BLOCK,firstY=Math.floor(top/BLOCK)*BLOCK,lastY=bottom+BLOCK;
+ // Avenidas anchas y calles secundarias.
+ ctx.fillStyle='#454b49';
  for(let x=firstX;x<=lastX;x+=BLOCK)ctx.fillRect(x-ROAD/2,top,ROAD,bottom-top);
  for(let y=firstY;y<=lastY;y+=BLOCK)ctx.fillRect(left,y-ROAD/2,right-left,ROAD);
- ctx.fillStyle='#596057';
- for(let x=firstX;x<=lastX;x+=BLOCK){ctx.fillRect(x-ROAD/2,top,5,bottom-top);ctx.fillRect(x+ROAD/2-5,top,5,bottom-top)}
- for(let y=firstY;y<=lastY;y+=BLOCK){ctx.fillRect(left,y-ROAD/2,right-left,5);ctx.fillRect(left,y+ROAD/2-5,right-left,5)}
- ctx.fillStyle='#a5a18a';
- // Las marcas se calculan desde coordenadas fijas del mundo, no desde la cámara.
- // Así no se reinician ni se deslizan cuando el jugador se mueve.
- const markStartX=Math.floor(left/90)*90;
- const markStartY=Math.floor(top/90)*90;
- for(let x=markStartX;x<right+90;x+=90)
-  for(let y=firstY;y<=lastY;y+=BLOCK)ctx.fillRect(x,y-2,38,4);
- for(let y=markStartY;y<bottom+90;y+=90)
-  for(let x=firstX;x<=lastX;x+=BLOCK)ctx.fillRect(x-2,y,4,38);
- // Los edificios y árboles se generan dentro de las manzanas, fuera de la calzada.
+ ctx.fillStyle='#656a62';
+ for(let x=firstX;x<=lastX;x+=BLOCK){ctx.fillRect(x-ROAD/2,top,5,bottom-top);ctx.fillRect(x+ROAD/2-5,top,5,bottom-top);}
+ for(let y=firstY;y<=lastY;y+=BLOCK){ctx.fillRect(left,y-ROAD/2,right-left,5);ctx.fillRect(left,y+ROAD/2-5,right-left,5);}
+ // Marcas viales.
+ ctx.fillStyle='#c0b99a';
+ for(let x=Math.floor(left/100)*100;x<right+100;x+=100)for(let y=firstY;y<=lastY;y+=BLOCK)ctx.fillRect(x,y-2,36,4);
+ for(let y=Math.floor(top/100)*100;y<bottom+100;y+=100)for(let x=firstX;x<=lastX;x+=BLOCK)ctx.fillRect(x-2,y,4,36);
+ // Edificios, árboles, autos y base militar.
  for(const o of worldObjects(left,top,right,bottom)){
-  if(o.type==='building')drawBuilding(o.x,o.y,o.w,o.h);
-  else tree(o.x,o.y);
+  if(o.type==='building')drawBuilding(o);
+  else if(o.type==='tree')tree(o.x,o.y);
+  else if(o.type==='car')drawCar(o.x,o.y);
+  else if(o.type==='base')drawMilitaryBase(o);
+  else if(o.type==='tower')drawWatchTower(o);
  }
 }
-function drawBuilding(x,y,w,h){ctx.fillStyle='#121d20';ctx.fillRect(x+8,y+9,w,h);ctx.fillStyle='#59615a';ctx.fillRect(x,y,w,h);ctx.fillStyle='#73796a';ctx.fillRect(x+7,y+7,w-14,h-14);ctx.fillStyle='#28383a';ctx.fillRect(x+18,y+18,25,25);ctx.fillRect(x+w-43,y+18,25,25);ctx.fillStyle='#302c27';ctx.fillRect(x+w/2-14,y+h-35,28,35);ctx.fillStyle='#9a6c4c';ctx.fillRect(x+w/2-14,y+h-35,28,5)}
-function tree(x,y){ctx.fillStyle='#17251e';ctx.fillRect(x-5,y+12,12,20);ctx.fillStyle='#315b3d';ctx.fillRect(x-19,y-8,38,30);ctx.fillStyle='#47764a';ctx.fillRect(x-11,y-16,22,14);ctx.fillStyle='#1d422f';ctx.fillRect(x+5,y+1,9,9)}
+function drawBuilding(o){
+ const {x,y,w,h}=o,military=o.kind==='military',shop=o.kind==='shop',warehouse=o.kind==='warehouse';
+ ctx.fillStyle='#111a1d';ctx.fillRect(x+8,y+9,w,h);
+ ctx.fillStyle=military?'#626d65':shop?'#776b58':warehouse?'#626b6a':'#62675f';ctx.fillRect(x,y,w,h);
+ ctx.fillStyle=military?'#8a9582':shop?'#b08a61':warehouse?'#7a8580':'#858878';ctx.fillRect(x+7,y+7,w-14,h-14);
+ if(military){ctx.fillStyle='#344d4a';ctx.fillRect(x+18,y+16,w-36,18);ctx.fillStyle='#d5d7bd';ctx.font='bold 10px monospace';ctx.textAlign='center';ctx.fillText('MILITAR',x+w/2,y+29);}
+ else{ctx.fillStyle='#293c3d';ctx.fillRect(x+18,y+18,Math.min(25,w/4),22);ctx.fillRect(x+w-43,y+18,25,22);}
+ ctx.fillStyle='#302c27';ctx.fillRect(x+w/2-14,y+h-35,28,35);ctx.fillStyle='#c08b5b';ctx.fillRect(x+w/2-14,y+h-35,28,5);
+}
+function drawMilitaryBase(o){
+ const {x,y,w,h}=o;
+ ctx.fillStyle='#252f2c';ctx.fillRect(x,y,w,h);
+ ctx.strokeStyle='#b4b9a0';ctx.lineWidth=5;ctx.setLineDash([14,7]);ctx.strokeRect(x,y,w,h);ctx.setLineDash([]);
+ ctx.fillStyle='#b8c3a0';ctx.font='bold 14px monospace';ctx.textAlign='center';ctx.fillText('BASE MILITAR',x+w/2,y+24);
+ for(let i=0;i<4;i++){ctx.fillStyle='#66766b';ctx.fillRect(x+18+i*82,y+h-30,48,12);}
+}
+function drawWatchTower(o){ctx.fillStyle='#343b37';ctx.fillRect(o.x+12,o.y+12,10,28);ctx.fillStyle='#8a9a83';ctx.fillRect(o.x,o.y,o.w,o.h);ctx.fillStyle='#303b39';ctx.fillRect(o.x+6,o.y+6,o.w-12,10);}
+function drawCar(x,y){ctx.fillStyle='#1b2527';ctx.fillRect(x-25,y-11,52,25);ctx.fillStyle='#788c84';ctx.fillRect(x-21,y-9,43,19);ctx.fillStyle='#263b42';ctx.fillRect(x-12,y-8,23,17);ctx.fillStyle='#111';ctx.fillRect(x-18,y-14,10,4);ctx.fillRect(x+9,y-14,10,4);}
+function drawInterior(){
+ const b=insideBuilding,x=b.x,y=b.y,w=b.w,h=b.h;
+ ctx.fillStyle='#182522';ctx.fillRect(x-30,y-30,w+60,h+60);
+ ctx.fillStyle=b.kind==='military'?'#59685c':'#857f6b';ctx.fillRect(x,y,w,h);
+ for(let tx=x+8;tx<x+w-8;tx+=28)for(let ty=y+8;ty<y+h-8;ty+=28){ctx.fillStyle=((tx+ty)/28|0)%2?'#777665':'#817e6c';ctx.fillRect(tx,ty,26,26);}
+ ctx.fillStyle='#353e3a';ctx.fillRect(x,y,w,12);ctx.fillRect(x,y,12,h);ctx.fillRect(x+w-12,y,12,h);
+ const cx=x+w/2;ctx.fillRect(x,y+h-12,w/2-24,12);ctx.fillRect(cx+24,y+h-12,w/2-24,12);
+ // Muebles: camas, mesa, estantería.
+ ctx.fillStyle='#4d5e5a';ctx.fillRect(x+w*.18,y+h*.22,Math.min(42,w*.3),25);
+ ctx.fillStyle='#c1b59a';ctx.fillRect(x+w*.18+4,y+h*.22+4,Math.min(34,w*.3)-8,9);
+ ctx.fillStyle='#5a4535';ctx.fillRect(x+w*.65,y+h*.24,Math.min(35,w*.25),26);
+ ctx.fillStyle='#9a805d';ctx.fillRect(x+w*.34,y+h*.58,Math.min(42,w*.32),24);
+ ctx.fillStyle='#c08b5b';ctx.fillRect(cx-20,y+h-13,40,4);
+ ctx.fillStyle='#f3e9c7';ctx.font='10px monospace';ctx.textAlign='center';ctx.fillText('G · SALIR',cx,y+h+18);
+}
+function tree(x,y){ctx.fillStyle='#17251e';ctx.fillRect(x-5,y+12,12,20);ctx.fillStyle='#315b3d';ctx.fillRect(x-19,y-8,38,30);ctx.fillStyle='#47764a';ctx.fillRect(x-11,y-16,22,14);ctx.fillStyle='#1d422f';ctx.fillRect(x+5,y+1,9,9);}
 function drawZombie(z){
  ctx.save();ctx.translate(z.x,z.y);let sc=z.scale;ctx.scale(sc,sc);
  ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(-12,8,25,8);
@@ -473,6 +566,48 @@ function drawPlayer(){
  ctx.save();ctx.translate(player.x,player.y);ctx.rotate(player.angle);
  ctx.fillStyle='#9a7954';ctx.fillRect(-4,-3,11,7);ctx.fillStyle='#d4d7c5';ctx.fillRect(5,-3,24,5);ctx.fillStyle='#6b7770';ctx.fillRect(25,-5,8,9);ctx.restore();
 }
+
+function drawMapUI(){
+ if(!player)return;
+ const size=Math.min(164,Math.max(112,W*.22)),mx=W-size-14,my=H<560?150:176;
+ drawMapPanel(mx,my,size,2.25,false);
+ if(mapOpen){
+  ctx.save();ctx.fillStyle='rgba(3,9,12,.82)';ctx.fillRect(0,0,W,H);
+  const big=Math.min(W-36,H-100);drawMapPanel((W-big)/2,(H-big)/2,big,5.2,true);
+  ctx.fillStyle='#f4f7e9';ctx.font='bold 14px monospace';ctx.textAlign='center';ctx.fillText('MAPA DE LA CIUDAD · M PARA CERRAR',W/2,(H-big)/2-14);
+  ctx.restore();
+ }
+}
+function drawMapPanel(x,y,size,zoom,onlyExplored){
+ ctx.save();ctx.fillStyle='rgba(9,18,22,.94)';ctx.fillRect(x-5,y-5,size+10,size+10);
+ ctx.strokeStyle='#8be36d';ctx.lineWidth=2;ctx.strokeRect(x-5,y-5,size+10,size+10);
+ ctx.beginPath();ctx.rect(x,y,size,size);ctx.clip();ctx.fillStyle='#293b34';ctx.fillRect(x,y,size,size);
+ const scale=size/(BLOCK*zoom),wx0=player.x-size/(2*scale),wy0=player.y-size/(2*scale);
+ const sx=wx=>x+(wx-wx0)*scale,sy=wy=>y+(wy-wy0)*scale;
+ // Barrios ya explorados y calles.
+ const bx0=Math.floor(wx0/BLOCK)-1,bx1=Math.floor((wx0+size/scale)/BLOCK)+1;
+ const by0=Math.floor(wy0/BLOCK)-1,by1=Math.floor((wy0+size/scale)/BLOCK)+1;
+ for(let ix=bx0;ix<=bx1;ix++)for(let iy=by0;iy<=by1;iy++){
+  const known=exploredBlocks.has(ix+','+iy)||!onlyExplored;
+  if(!known)continue;
+  ctx.fillStyle='#3a4b40';ctx.fillRect(sx(ix*BLOCK),sy(iy*BLOCK),BLOCK*scale,BLOCK*scale);
+  ctx.fillStyle='#626964';ctx.fillRect(sx(ix*BLOCK-ROAD/2),sy(iy*BLOCK),ROAD*scale,BLOCK*scale);
+  ctx.fillRect(sx(ix*BLOCK),sy(iy*BLOCK-ROAD/2),BLOCK*scale,ROAD*scale);
+  for(const o of worldObjects(ix*BLOCK,iy*BLOCK,(ix+1)*BLOCK,(iy+1)*BLOCK)){
+   if(o.type==='building'){ctx.fillStyle=o.kind==='military'?'#b3b99b':'#9a9c8a';ctx.fillRect(sx(o.x),sy(o.y),Math.max(3,o.w*scale),Math.max(3,o.h*scale));}
+   else if(o.type==='base'){ctx.strokeStyle='#d6c98a';ctx.lineWidth=2;ctx.strokeRect(sx(o.x),sy(o.y),o.w*scale,o.h*scale);}
+   else if(o.type==='tree'){ctx.fillStyle='#75a66a';ctx.fillRect(sx(o.x)-2,sy(o.y)-2,4,4);}
+   else if(o.type==='car'){ctx.fillStyle='#e1bd67';ctx.fillRect(sx(o.x)-2,sy(o.y)-2,5,4);}
+  }
+ }
+ // Indicador del jugador y brújula.
+ ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x+size/2,y+size/2,5,0,Math.PI*2);ctx.fill();
+ ctx.strokeStyle='#ff5d55';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x+size/2,y+size/2);ctx.lineTo(x+size/2+Math.cos(player.angle)*13,y+size/2+Math.sin(player.angle)*13);ctx.stroke();
+ ctx.fillStyle='#eaf4e9';ctx.font='bold 10px monospace';ctx.textAlign='left';ctx.fillText('N',x+5,y+12);
+ if(insideBuilding){ctx.fillStyle='#ffd45a';ctx.font='bold 9px monospace';ctx.fillText('INTERIOR',x+5,y+size-7);}
+ ctx.restore();
+}
+
 function drawMenuBg(){ctx.fillStyle='#172a25';ctx.fillRect(0,0,W,H);for(let i=0;i<90;i++){let x=(i*137)%W,y=(i*83)%H;ctx.fillStyle=i%3?'#294333':'#36513b';ctx.fillRect(x,y,4,4)}}
 function loop(now){let dt=Math.min((now-lastTime)/1000||0,.04);lastTime=now;if(state==='playing')update(dt);draw();requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
