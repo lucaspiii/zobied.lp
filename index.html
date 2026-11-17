@@ -487,11 +487,24 @@ function circleHitsWorld(x,y,r){
    const px=Math.max(o.x,Math.min(x,o.x+o.w)),py=Math.max(o.y,Math.min(y,o.y+o.h));
    if((x-px)**2+(y-py)**2<r*r)return true;
   }else if(o.type==='base'){
-   const left=o.x,right=o.x+o.w,top=o.y,bottom=o.y+o.h,gate=(right-left)*.34;
-   const nearV=(Math.abs(x-left)<r+5||Math.abs(x-right)<r+5)&&y>top-r&&y<bottom+r;
-   const nearTop=Math.abs(y-top)<r+5&&x>left-r&&x<right+r;
-   const nearBottom=Math.abs(y-bottom)<r+5&&Math.abs(x-(left+right)/2)>gate/2+r;
-   if(nearV||nearTop||nearBottom)return true;
+   // Colisión del perímetro: usa los mismos rectángulos y medidas
+   // que drawMilitaryBase(), para que no haya paredes desplazadas.
+   const left=o.x,right=o.x+o.w,top=o.y,bottom=o.y+o.h;
+   const wall=13,gate=(right-left)*.34;
+   const cx=(left+right)/2;
+   const circleRect=(rx,ry,rw,rh)=>{
+    const px=Math.max(rx,Math.min(x,rx+rw));
+    const py=Math.max(ry,Math.min(y,ry+rh));
+    return (x-px)*(x-px)+(y-py)*(y-py)<r*r;
+   };
+   // Pared superior y laterales.
+   if(circleRect(left-5,top-5,o.w+10,wall))return true;
+   if(circleRect(left-5,top-5,wall,o.h+10))return true;
+   if(circleRect(right-8,top-5,wall,o.h+10))return true;
+   // Pared inferior en dos tramos; el centro queda libre como portón.
+   const segment=(o.w-gate)/2+5;
+   if(circleRect(left-5,bottom-8,segment,wall))return true;
+   if(circleRect(cx+gate/2,bottom-8,segment,wall))return true;
   }else if(o.type==='tree'&&Math.hypot(x-o.x,y-o.y)<r+o.r)return true;
   else if(o.type==='car'&&Math.abs(x-o.x)<28+r&&Math.abs(y-o.y)<15+r)return true;
   else if(o.type==='tower'&&x>o.x-r&&x<o.x+o.w+r&&y>o.y-r&&y<o.y+o.h+r)return true;
