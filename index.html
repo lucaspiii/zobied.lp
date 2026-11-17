@@ -641,46 +641,92 @@ function drawPlayer(){
 
 function drawMapUI(){
  if(!player)return;
- const size=Math.min(164,Math.max(112,W*.22)),mx=W-size-14,my=H<560?150:176;
- drawMapPanel(mx,my,size,2.25,false);
+ const mini=Math.min(164,Math.max(112,W*.22)),mx=W-mini-14,my=H<560?150:176;
+ drawMapPanel(mx,my,mini,2.25,false,player.x,player.y,false);
  if(mapOpen){
-  ctx.save();ctx.fillStyle='rgba(3,9,12,.96)';ctx.fillRect(0,0,W,H);
-  const big=Math.min(W-56,H-120);drawMapPanel((W-big)/2,(H-big)/2,big,4.2,true);
-  ctx.fillStyle='#f4f7e9';ctx.font='bold 16px monospace';ctx.textAlign='center';ctx.fillText('MAPA DE LA CIUDAD · M PARA CERRAR',W/2,(H-big)/2-20);
-  ctx.fillStyle='#8be36d';ctx.font='bold 11px monospace';ctx.fillText('VERDE: BASE MILITAR  ·  PUNTO BLANCO: TU POSICIÓN  ·  EXPLORÁ PARA DESCUBRIR MÁS',W/2,(H+big)/2+24);
+  ctx.save();
+  ctx.fillStyle='rgba(3,9,12,.96)';ctx.fillRect(0,0,W,H);
+  // Mapa de sector de tamaño limitado: siempre muestra la base y los barrios cercanos.
+  const big=Math.max(280,Math.min(610,W-64,H-150));
+  const mapX=(W-big)/2,mapY=(H-big)/2+2;
+  drawMapPanel(mapX,mapY,big,5.2,false,0,0,true);
+  ctx.fillStyle='#f4f7e9';ctx.font='bold 16px monospace';ctx.textAlign='center';
+  ctx.fillText('MAPA DEL SECTOR · M PARA CERRAR',W/2,mapY-20);
+  ctx.fillStyle='#8be36d';ctx.font='bold 10px monospace';
+  ctx.fillText('● BASE MILITAR   ● TU POSICIÓN   ·   SECTOR EXPLORABLE',W/2,mapY+big+22);
   ctx.restore();
  }
 }
-function drawMapPanel(x,y,size,zoom,onlyExplored){
- ctx.save();ctx.fillStyle='rgba(9,18,22,.94)';ctx.fillRect(x-5,y-5,size+10,size+10);
- ctx.strokeStyle='#8be36d';ctx.lineWidth=2;ctx.strokeRect(x-5,y-5,size+10,size+10);
- ctx.beginPath();ctx.rect(x,y,size,size);ctx.clip();ctx.fillStyle='#293b34';ctx.fillRect(x,y,size,size);
- const scale=size/(BLOCK*zoom),wx0=player.x-size/(2*scale),wy0=player.y-size/(2*scale);
+function drawMapPanel(x,y,size,zoom,onlyExplored,centerX,centerY,showBase){
+ ctx.save();
+ ctx.fillStyle='rgba(9,18,22,.97)';ctx.fillRect(x-6,y-6,size+12,size+12);
+ ctx.strokeStyle='#8be36d';ctx.lineWidth=2;ctx.strokeRect(x-6,y-6,size+12,size+12);
+ ctx.beginPath();ctx.rect(x,y,size,size);ctx.clip();
+ ctx.fillStyle='#1c3029';ctx.fillRect(x,y,size,size);
+ const scale=size/(BLOCK*zoom),wx0=centerX-size/(2*scale),wy0=centerY-size/(2*scale);
  const sx=wx=>x+(wx-wx0)*scale,sy=wy=>y+(wy-wy0)*scale;
- // Barrios ya explorados y calles.
  const bx0=Math.floor(wx0/BLOCK)-1,bx1=Math.floor((wx0+size/scale)/BLOCK)+1;
  const by0=Math.floor(wy0/BLOCK)-1,by1=Math.floor((wy0+size/scale)/BLOCK)+1;
  for(let ix=bx0;ix<=bx1;ix++)for(let iy=by0;iy<=by1;iy++){
   const known=exploredBlocks.has(ix+','+iy)||!onlyExplored;
   if(!known)continue;
-  ctx.fillStyle='#3a4b40';ctx.fillRect(sx(ix*BLOCK),sy(iy*BLOCK),BLOCK*scale,BLOCK*scale);
-  ctx.fillStyle='#626964';ctx.fillRect(sx(ix*BLOCK-ROAD/2),sy(iy*BLOCK),ROAD*scale,BLOCK*scale);
-  ctx.fillRect(sx(ix*BLOCK),sy(iy*BLOCK-ROAD/2),BLOCK*scale,ROAD*scale);
-  for(const o of worldObjects(ix*BLOCK,iy*BLOCK,(ix+1)*BLOCK,(iy+1)*BLOCK)){
-   if(o.type==='building'){ctx.fillStyle=o.kind==='military'?'#b3b99b':'#9a9c8a';ctx.fillRect(sx(o.x),sy(o.y),Math.max(3,o.w*scale),Math.max(3,o.h*scale));}
-   else if(o.type==='base'){ctx.strokeStyle='#d6c98a';ctx.lineWidth=2;ctx.strokeRect(sx(o.x),sy(o.y),o.w*scale,o.h*scale);}
-   else if(o.type==='tree'){ctx.fillStyle='#75a66a';ctx.fillRect(sx(o.x)-2,sy(o.y)-2,4,4);}
-   else if(o.type==='car'){ctx.fillStyle='#e1bd67';ctx.fillRect(sx(o.x)-2,sy(o.y)-2,5,4);}
+  const bx=ix*BLOCK,by=iy*BLOCK;
+  // Manzanas y veredas con calles anchas y cruces claramente legibles.
+  ctx.fillStyle=((ix+iy)&1)?'#354a3e':'#3c5145';
+  ctx.fillRect(sx(bx),sy(by),BLOCK*scale,BLOCK*scale);
+  ctx.fillStyle='#626b67';
+  ctx.fillRect(sx(bx-ROAD/2),sy(by),ROAD*scale,BLOCK*scale);
+  ctx.fillRect(sx(bx),sy(by-ROAD/2),BLOCK*scale,ROAD*scale);
+  // Marcas viales discretas para dar orientación.
+  ctx.fillStyle='#c3c19b';
+  for(let k=0;k<3;k++){
+   const cx=bx+BLOCK*(.22+k*.28);
+   ctx.fillRect(sx(cx)-1,sy(by+BLOCK/2)-1,Math.max(2,ROAD*scale*.18),2);
+  }
+  for(const o of worldObjects(bx,by,bx+BLOCK,by+BLOCK)){
+   if(o.type==='building'){
+    const palette={
+     house:'#9b9b83',shop:'#c39a65',warehouse:'#858d88',
+     hospital:'#b5cfc2',police:'#7794ad',gas:'#c28a55',military:'#8d9c70'
+    };
+    ctx.fillStyle=palette[o.kind]||'#9b9b83';
+    ctx.fillRect(sx(o.x),sy(o.y),Math.max(3,o.w*scale),Math.max(3,o.h*scale));
+    ctx.strokeStyle='rgba(12,22,20,.6)';ctx.lineWidth=1;
+    ctx.strokeRect(sx(o.x),sy(o.y),Math.max(3,o.w*scale),Math.max(3,o.h*scale));
+   }else if(o.type==='base'){
+    ctx.fillStyle='rgba(126,190,86,.18)';
+    ctx.fillRect(sx(o.x),sy(o.y),o.w*scale,o.h*scale);
+    ctx.strokeStyle='#a6d66b';ctx.lineWidth=2;
+    ctx.strokeRect(sx(o.x),sy(o.y),o.w*scale,o.h*scale);
+   }else if(o.type==='tree'){
+    ctx.fillStyle='#75a66a';ctx.beginPath();ctx.arc(sx(o.x),sy(o.y),Math.max(2,4*scale),0,Math.PI*2);ctx.fill();
+   }else if(o.type==='car'){
+    ctx.fillStyle='#e1bd67';ctx.fillRect(sx(o.x)-2,sy(o.y)-2,5,4);
+   }
   }
  }
- // Indicador del jugador y brújula.
- ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(x+size/2,y+size/2,5,0,Math.PI*2);ctx.fill();
- ctx.strokeStyle='#ff5d55';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(x+size/2,y+size/2);ctx.lineTo(x+size/2+Math.cos(player.angle)*13,y+size/2+Math.sin(player.angle)*13);ctx.stroke();
- ctx.fillStyle='#eaf4e9';ctx.font='bold 10px monospace';ctx.textAlign='left';ctx.fillText('N',x+5,y+12);
- if(insideBuilding){ctx.fillStyle='#ffd45a';ctx.font='bold 9px monospace';ctx.fillText('INTERIOR',x+5,y+size-7);}
+ // Punto de la base militar: se muestra siempre en el mapa del sector.
+ if(showBase){
+  const bX=sx(365),bY=sy(320);
+  ctx.fillStyle='rgba(8,20,13,.85)';ctx.beginPath();ctx.arc(bX,bY,10,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#8be36d';ctx.beginPath();ctx.arc(bX,bY,6,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#eaffbd';ctx.lineWidth=2;ctx.stroke();
+  ctx.fillStyle='#eaffbd';ctx.font='bold 10px monospace';ctx.textAlign='left';
+  ctx.fillText('BASE MILITAR',bX+12,bY-9);
+ }
+ // Punto blanco: jugador. Si sale del sector mostrado, queda indicado en el borde más cercano.
+ let px=sx(player.x),py=sy(player.y);
+ if(showBase){
+  px=Math.max(x+7,Math.min(x+size-7,px));
+  py=Math.max(y+7,Math.min(y+size-7,py));
+ }
+ ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(px,py,5,0,Math.PI*2);ctx.fill();
+ ctx.strokeStyle='#ff5d55';ctx.lineWidth=3;ctx.beginPath();
+ ctx.moveTo(px,py);ctx.lineTo(px+Math.cos(player.angle)*13,py+Math.sin(player.angle)*13);ctx.stroke();
+ ctx.fillStyle='#eaf4e9';ctx.font='bold 10px monospace';ctx.textAlign='left';ctx.fillText('N',x+7,y+13);
+ if(insideBuilding){ctx.fillStyle='#ffd45a';ctx.font='bold 9px monospace';ctx.fillText('INTERIOR',x+7,y+size-8);}
  ctx.restore();
 }
-
 function drawMenuBg(){ctx.fillStyle='#172a25';ctx.fillRect(0,0,W,H);for(let i=0;i<90;i++){let x=(i*137)%W,y=(i*83)%H;ctx.fillStyle=i%3?'#294333':'#36513b';ctx.fillRect(x,y,4,4)}}
 function loop(now){let dt=Math.min((now-lastTime)/1000||0,.04);lastTime=now;if(state==='playing')update(dt);draw();requestAnimationFrame(loop)}
 requestAnimationFrame(loop);
