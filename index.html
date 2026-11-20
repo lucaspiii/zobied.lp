@@ -393,10 +393,11 @@ function draw(){
 // Ciudad procedural por sectores: el mapa continúa en todas las direcciones.
 
 const BLOCK=620,ROAD=140;
-// Mundo abierto finito: 8 x 8 sectores conectados, con la base militar en el centro.
-const WORLD_MIN=-4*BLOCK,WORLD_MAX=4*BLOCK;
+// Mundo cerrado de 6 x 6 sectores: los bordes son límites reales.
+const WORLD_MIN=-3*BLOCK,WORLD_MAX=3*BLOCK;
 function districtAt(ix,iy){
  if(ix===0&&iy===0)return {id:'military',name:'BASE MILITAR',ground:['#39463c','#303d35','#465346']};
+ if((ix===-2||ix===-1)&&iy===-2)return {id:'suburbs',name:'BARRIO RESIDENCIAL',ground:['#33463c','#2a3c34','#394a3e']};
  if(ix===1&&iy===0)return {id:'downtown',name:'CENTRO URBANO',ground:['#454946','#383f3c','#50534e']};
  if(ix===-1&&iy===0)return {id:'market',name:'ZONA COMERCIAL',ground:['#49453d','#3c3b35','#565044']};
  if(ix===0&&iy===1)return {id:'hospital',name:'DISTRITO HOSPITALARIO',ground:['#3b4946','#303d3b','#465652']};
@@ -415,7 +416,7 @@ function blockSeed(ix,iy){
  return (n^(n>>>16))>>>0;
 }
 function worldObjects(x1,y1,x2,y2){
- const out=[],ix1=Math.max(-4,Math.floor(x1/BLOCK)-1),ix2=Math.min(3,Math.floor(x2/BLOCK)+1),iy1=Math.max(-4,Math.floor(y1/BLOCK)-1),iy2=Math.min(3,Math.floor(y2/BLOCK)+1);
+ const out=[],ix1=Math.max(-3,Math.floor(x1/BLOCK)-1),ix2=Math.min(2,Math.floor(x2/BLOCK)+1),iy1=Math.max(-3,Math.floor(y1/BLOCK)-1),iy2=Math.min(2,Math.floor(y2/BLOCK)+1);
  if(ix1>ix2||iy1>iy2)return out;
  const kinds=['house','shop','warehouse','hospital','police','gas'];
  for(let ix=ix1;ix<=ix2;ix++)for(let iy=iy1;iy<=iy2;iy++){
@@ -432,6 +433,20 @@ function worldObjects(x1,y1,x2,y2){
    out.push({type:'tower',x:ox+474,y:oy+474,w:34,h:34});
    out.push({type:'car',x:ox+300,y:oy+445});
    out.push({type:'car',x:ox+390,y:oy+430});
+   out.push({type:'car',x:ox+235,y:oy+445});
+   out.push({type:'tower',x:ox+285,y:oy+112,w:42,h:48});
+   out.push({type:'building',kind:'warehouse',x:ox+155,y:oy+245,w:130,h:70});
+   continue;
+  }
+  // Dos sectores residenciales propios, inspirados en la referencia sin copiarla.
+  if((ix===-2||ix===-1)&&iy===-2){
+   const homes=ix===-2
+    ? [[74,76,122,104],[382,76,145,112],[82,390,135,112],[390,390,132,118]]
+    : [[78,78,136,110],[390,78,132,108],[78,392,128,112],[390,392,140,112]];
+   homes.forEach(a=>out.push({type:'building',kind:'house',x:ox+a[0],y:oy+a[1],w:a[2],h:a[3]}));
+   out.push({type:'tree',x:ox+300,y:oy+135,r:19},{type:'tree',x:ox+300,y:oy+440,r:18});
+   out.push({type:'car',x:ox+245,y:oy+300});
+   if(ix===-1)out.push({type:'building',kind:'shop',x:ox+245,y:oy+445,w:90,h:65});
    continue;
   }
   let seed=blockSeed(ix,iy);
@@ -579,6 +594,11 @@ function drawWorld(){
   else if(o.type==='base')drawMilitaryBase(o);
   else if(o.type==='tower')drawWatchTower(o);
  }
+ ctx.save();ctx.strokeStyle='#a4ad8a';ctx.lineWidth=18;ctx.setLineDash([34,18]);
+ ctx.strokeRect(WORLD_MIN,WORLD_MIN,WORLD_MAX-WORLD_MIN,WORLD_MAX-WORLD_MIN);
+ ctx.setLineDash([]);ctx.strokeStyle='#e0d49b';ctx.lineWidth=3;
+ ctx.strokeRect(WORLD_MIN+10,WORLD_MIN+10,WORLD_MAX-WORLD_MIN-20,WORLD_MAX-WORLD_MIN-20);
+ ctx.restore();
 }
 function drawBuilding(o){
  const {x,y,w,h}=o,kind=o.kind;
@@ -654,15 +674,58 @@ function drawInterior(){
 function tree(x,y){ctx.fillStyle='#17251e';ctx.fillRect(x-5,y+12,12,20);ctx.fillStyle='#315b3d';ctx.fillRect(x-19,y-8,38,30);ctx.fillStyle='#47764a';ctx.fillRect(x-11,y-16,22,14);ctx.fillStyle='#1d422f';ctx.fillRect(x+5,y+1,9,9);}
 function drawZombie(z){
  const o=z.outfit||{shirt:'#557a4c',pants:'#263b32',skin:'#718d61'};
- ctx.save();ctx.translate(z.x,z.y);let sc=z.scale;ctx.scale(sc,sc);
+ ctx.save();ctx.translate(z.x,z.y);
+ if(z.boss){
+  const pulse=1+Math.sin(worldTime*3)*.025;ctx.scale(z.scale*pulse,z.scale*pulse);
+  ctx.fillStyle='rgba(0,0,0,.42)';ctx.fillRect(-23,13,46,9);
+  if(z.bossKind==='titan'){
+   ctx.fillStyle='#202b2b';ctx.fillRect(-20,2,13,17);ctx.fillRect(7,2,13,17);
+   ctx.fillStyle='#394b43';ctx.fillRect(-23,-13,46,24);
+   ctx.fillStyle='#71836a';ctx.fillRect(-19,-11,38,18);
+   ctx.fillStyle='#a5a66a';ctx.fillRect(-27,-15,13,19);ctx.fillRect(14,-15,13,19);
+   ctx.fillStyle='#303d38';ctx.fillRect(-24,-19,48,9);
+   ctx.fillStyle='#52675a';ctx.fillRect(-13,-31,26,17);
+   ctx.fillStyle='#273a34';ctx.fillRect(-15,-34,30,7);
+   ctx.fillStyle='#a7b77a';ctx.fillRect(-10,-28,20,5);
+   ctx.fillStyle='#f15b4f';ctx.fillRect(-8,-27,5,3);ctx.fillRect(3,-27,5,3);
+   ctx.fillStyle='#d2bd6b';ctx.fillRect(-5,-8,10,8);
+   ctx.fillStyle='#87966b';ctx.fillRect(-30,-9,8,24);ctx.fillRect(22,-9,8,24);
+   ctx.fillStyle='#222d2b';ctx.fillRect(-22,16,17,5);ctx.fillRect(5,16,17,5);
+   ctx.fillStyle='#c4a95c';ctx.fillRect(-24,-17,9,4);ctx.fillRect(15,-17,9,4);
+  }else if(z.bossKind==='mutant'){
+   ctx.fillStyle='#493456';ctx.fillRect(-17,1,13,18);ctx.fillRect(5,1,13,18);
+   ctx.fillStyle='#704a78';ctx.fillRect(-22,-15,44,29);
+   ctx.fillStyle='#a36b9c';ctx.fillRect(-27,-12,12,22);ctx.fillRect(15,-12,12,22);
+   ctx.fillStyle='#8f76a0';ctx.fillRect(-13,-34,26,21);
+   ctx.fillStyle='#34283c';ctx.fillRect(-15,-38,30,8);
+   ctx.fillStyle='#f4a1d8';ctx.fillRect(-9,-27,5,4);ctx.fillRect(4,-27,5,4);
+   ctx.fillStyle='#34283c';ctx.fillRect(-4,-18,9,4);
+   ctx.fillStyle='#c77cff';ctx.fillRect(-29,-24,6,15);ctx.fillRect(23,-24,6,15);
+   ctx.fillStyle='#d7a3dc';ctx.fillRect(-5,-7,10,13);
+  }else{
+   ctx.fillStyle='#493426';ctx.fillRect(-16,2,12,18);ctx.fillRect(4,2,12,18);
+   ctx.fillStyle='#765239';ctx.fillRect(-21,-14,42,29);
+   ctx.fillStyle='#b18a42';ctx.fillRect(-25,-17,12,23);ctx.fillRect(13,-17,12,23);
+   ctx.fillStyle='#9b8050';ctx.fillRect(-13,-34,26,20);
+   ctx.fillStyle='#d0a84e';ctx.fillRect(-17,-38,34,7);ctx.fillRect(-9,-44,18,7);
+   ctx.fillStyle='#4b3429';ctx.fillRect(-9,-28,5,4);ctx.fillRect(4,-28,5,4);
+   ctx.fillStyle='#e7c66a';ctx.fillRect(-5,-19,10,4);
+   ctx.fillStyle='#d0a84e';ctx.fillRect(-4,-8,8,15);
+  }
+  if(z.hit>0){ctx.globalAlpha=.7;ctx.fillStyle='#fff';ctx.fillRect(-27,-37,54,55);ctx.globalAlpha=1;}
+  ctx.fillStyle='#101a19';ctx.fillRect(-25,-54,50,6);
+  ctx.fillStyle=z.rarity.color;ctx.fillRect(-25,-54,50*Math.max(0,z.hp/z.maxHp),6);
+  ctx.strokeStyle='#d8e1d4';ctx.lineWidth=1;ctx.strokeRect(-25,-54,50,6);
+  ctx.fillStyle=z.rarity.color;ctx.font='bold 10px monospace';ctx.textAlign='center';ctx.fillText(z.name,0,-61);
+  ctx.restore();return;
+ }
+ ctx.scale(z.scale,z.scale);
  ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(-13,10,27,7);
- // Piernas y ropa.
  ctx.fillStyle=o.pants||'#263b32';ctx.fillRect(-10,5,7,13);ctx.fillRect(3,5,7,13);
  ctx.fillStyle=o.shirt||'#557a4c';ctx.fillRect(-12,-10,24,19);
  ctx.fillStyle=o.vest||o.badge||'#3c5940';
  if(o.vest){ctx.fillRect(-10,-8,5,15);ctx.fillRect(5,-8,5,15);}
  if(o.badge){ctx.fillStyle=o.badge;ctx.fillRect(5,-7,4,4);}
- // Cabeza, cara y accesorios.
  ctx.fillStyle=o.skin||'#718d61';ctx.fillRect(-8,-25,16,16);
  ctx.fillStyle='#d94d48';ctx.fillRect(-5,-19,3,3);ctx.fillRect(3,-19,3,3);
  ctx.fillStyle='#26352a';ctx.fillRect(-3,-12,7,2);
@@ -670,10 +733,8 @@ function drawZombie(z){
  if(o.cross){ctx.fillStyle=o.cross;ctx.fillRect(-2,-8,4,10);ctx.fillRect(-6,-4,12,4);}
  if(o.mask){ctx.fillStyle=o.mask;ctx.fillRect(-7,-14,14,5);ctx.fillStyle='#718d85';ctx.fillRect(-5,-13,3,2);ctx.fillRect(2,-13,3,2);}
  if(z.hit>0){ctx.fillStyle='#fff';ctx.fillRect(-12,-10,24,19);}
- // Los jefes conservan su tamaño y llevan una silueta reforzada.
- if(z.boss){ctx.strokeStyle='#ff4242';ctx.lineWidth=3;ctx.strokeRect(-17,-35,34,54);ctx.fillStyle='#ff4242';ctx.fillRect(-13,-39,26,5);}
  ctx.fillStyle='#101a19';ctx.fillRect(-14,-39,28,5);ctx.fillStyle=z.rarity.color;ctx.fillRect(-14,-39,28*Math.max(0,z.hp/z.maxHp),5);
- if(z.boss||z.rarity.reward>=75||z.enemyId!=='walker'){ctx.fillStyle=z.rarity.color;ctx.font=z.boss?'bold 12px monospace':'9px monospace';ctx.textAlign='center';ctx.fillText(z.boss?z.name:(z.enemyLabel||z.rarity.name),0,z.boss?-58:-44);}
+ if(z.rarity.reward>=75||z.enemyId!=='walker'){ctx.fillStyle=z.rarity.color;ctx.font='9px monospace';ctx.textAlign='center';ctx.fillText(z.enemyLabel||z.rarity.name,0,-44);}
  ctx.restore();
 }
 function drawPet(){
@@ -742,7 +803,7 @@ function drawMapUI(){
   ctx.fillStyle='#f4f7e9';ctx.font='bold 16px monospace';ctx.textAlign='center';
   ctx.fillText('MAPA DEL MUNDO · M PARA CERRAR',W/2,mapY-20);
   ctx.fillStyle='#8be36d';ctx.font='bold 10px monospace';
-  ctx.fillText('● BASE MILITAR   ● TU POSICIÓN   ·   8 × 8 SECTORES',W/2,mapY+big+22);
+  ctx.fillText('● BASE MILITAR   ● TU POSICIÓN   ·   6 × 6 SECTORES',W/2,mapY+big+22);
   ctx.restore();
  }
 }
