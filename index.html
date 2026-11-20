@@ -48,7 +48,7 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated;cursor:cro
 .touchAction{position:absolute;pointer-events:auto;touch-action:none;border-radius:50%;width:66px;height:66px;padding:0;background:#ffcf58;border:3px solid #fff0b0;box-shadow:0 4px 0 #946d25;color:#182018;font-size:11px}
 #fireTouch{right:150px;bottom:42px;width:76px;height:76px;background:#ff7770;box-shadow:0 4px 0 #8e3838;color:#240d0d}
 #reloadTouch{right:162px;bottom:130px}#runTouch{left:145px;bottom:30px;background:#75cfff;box-shadow:0 4px 0 #326b91}#enterTouch{right:22px;bottom:215px;background:#8be36d;box-shadow:0 4px 0 #477d3c;width:68px;height:54px;border-radius:12px}#mapTouch{right:22px;bottom:285px;background:#68d8ff;box-shadow:0 4px 0 #326b91;width:68px;height:48px;border-radius:12px}
-@media (pointer:coarse),(max-width:800px){#abilityHud{position:absolute;left:50%;top:155px;transform:translateX(-50%);gap:3px}#abilityHud .ability{font-size:9px;min-width:65px;padding:6px 4px}#rightHud{top:82px}#touchControls{display:block}#pauseHint{display:none}#topbar{top:6px;left:6px;right:6px;gap:4px;justify-content:center}.stat{min-width:0;flex:1;padding:6px 7px}.stat small{font-size:9px;margin-bottom:2px}.stat strong{font-size:14px}.bar{height:6px;margin-top:3px}#rightHud{top:82px;right:6px;gap:4px}#rightHud .panel{padding:6px}#rightHud small{font-size:9px}#rightHud strong{font-size:12px}#bottomHud{top:82px;bottom:auto;left:6px;transform:none;display:flex;gap:5px;align-items:start}#weaponBox{min-width:112px;padding:6px}#weaponName{font-size:11px}#weaponBox strong{font-size:13px}#weaponBox small{font-size:8px}#bottomHud button{font-size:10px;padding:8px 9px}#crosshair{display:none}#toast{top:30%;font-size:17px;white-space:normal;width:90%}.card{padding:20px 14px}.logo{letter-spacing:-2px}.help{font-size:11px}}
+@media (pointer:coarse),(max-width:800px){#abilityHud{position:absolute;left:50%;top:155px;transform:translateX(-50%);gap:3px}#abilityHud .ability{font-size:9px;min-width:65px;padding:6px 4px}#rightHud{top:82px}#touchControls{display:block}#pauseHint{display:none}#topbar{top:6px;left:6px;right:6px;gap:4px;justify-content:center}.stat{min-width:0;flex:1;padding:6px 7px}.stat small{font-size:9px;margin-bottom:2px}.stat strong{font-size:14px}.bar{height:6px;margin-top:3px}#rightHud{top:82px;right:6px;gap:4px}#rightHud .panel{padding:6px}#rightHud small{font-size:9px}#rightHud strong{font-size:12px}#zoneText{font-size:10px!important;max-width:130px;display:inline-block}#bottomHud{top:82px;bottom:auto;left:6px;transform:none;display:flex;gap:5px;align-items:start}#weaponBox{min-width:112px;padding:6px}#weaponName{font-size:11px}#weaponBox strong{font-size:13px}#weaponBox small{font-size:8px}#bottomHud button{font-size:10px;padding:8px 9px}#crosshair{display:none}#toast{top:30%;font-size:17px;white-space:normal;width:90%}.card{padding:20px 14px}.logo{letter-spacing:-2px}.help{font-size:11px}}
 @media (max-width:430px){.stick{width:96px;height:96px;bottom:18px}.knob{width:42px;height:42px}#moveStick{left:10px}#aimStick{right:10px}#fireTouch{right:118px;bottom:28px;width:66px;height:66px}#reloadTouch{right:125px;bottom:105px;width:54px;height:54px}#runTouch{left:112px;bottom:20px;width:54px;height:54px}#enterTouch{right:8px;bottom:178px;width:58px;height:48px}#mapTouch{right:8px;bottom:232px;width:58px;height:44px}}
 #notice{position:absolute;left:50%;top:16%;transform:translateX(-50%);padding:10px 18px;background:#14242d;border:2px solid var(--gold);color:var(--gold);font-weight:bold;display:none}
 @media(max-width:650px){#topbar{gap:5px;flex-wrap:wrap}.stat{min-width:90px;padding:7px}.stat strong{font-size:15px}#rightHud{top:112px}.panel{padding:7px}#bottomHud{bottom:8px}#pauseHint{display:none}}
@@ -85,7 +85,7 @@ canvas{display:block;width:100%;height:100%;image-rendering:pixelated;cursor:cro
    <div class="panel stat"><small>DINERO</small><strong id="moneyText">$0</strong></div>
   </div>
   <div id="rightHud">
-   <div class="panel"><small>ZOMBIES RESTANTES</small><strong id="remainingText">0</strong></div><div class="panel hidden" id="bossHud"><small>JEFE DE OLEADA</small><strong id="bossName">JEFE</strong><div class="bar"><i id="bossBar" style="background:#ff6868"></i></div></div>
+   <div class="panel"><small>ZONA ACTUAL</small><strong id="zoneText">BARRIO RESIDENCIAL</strong></div><div class="panel"><small>ZOMBIES RESTANTES</small><strong id="remainingText">0</strong></div><div class="panel hidden" id="bossHud"><small>JEFE DE OLEADA</small><strong id="bossName">JEFE</strong><div class="bar"><i id="bossBar" style="background:#ff6868"></i></div></div>
   </div>
   <div id="bottomHud">
    <div class="panel" id="weaponBox"><div id="weaponName">PISTOLA</div><div><strong id="ammoText">12 / 48</strong></div><small>CLIC IZQ. DISPARAR · R RECARGAR</small></div>
@@ -253,48 +253,61 @@ $('startBtn').onclick=()=>{if(state==='paused')togglePause();else start()};
 $('howBtn').onclick=()=>{$('helpText').innerHTML='WASD: moverte · Mouse: apuntar · Clic izquierdo: disparar<br>SHIFT: correr · R: recargar · B: tienda · P: pausa · Q: pulso · G: entrar/salir · M: mapa · F: curar';};
 function reload(){if(state!=='playing')return;let w=currentWeapon(),a=ammo[w.id];if(a.mag===w.mag||a.reserve<=0)return;showToast('RECARGANDO...');setTimeout(()=>{if(state!=='playing')return;let n=Math.min(w.mag-a.mag,a.reserve);a.mag+=n;a.reserve-=n;updateHud()},w.reload)}
 function spawnZombie(){
- // Buscar un punto de aparición libre, fuera de edificios y árboles.
- // Se prueba alrededor del jugador a distintas distancias para evitar spawns dentro de casas.
- let x=player.x,y=player.y,found=false;
- for(let attempt=0;attempt<90;attempt++){
-  const angle=Math.random()*Math.PI*2;
-  const dist=Math.max(W,H)*(.58+Math.random()*.32)+100;
-  const tx=Math.max(WORLD_MIN+35,Math.min(WORLD_MAX-35,player.x+Math.cos(angle)*dist));
-  const ty=Math.max(WORLD_MIN+35,Math.min(WORLD_MAX-35,player.y+Math.sin(angle)*dist));
-  if(!circleHitsWorld(tx,ty,15)&&Math.hypot(tx-player.x,ty-player.y)>180){
-   x=tx;y=ty;found=true;break;
+  // Aparición segura alrededor del jugador, sin colocar enemigos dentro de edificios.
+  let x=player.x,y=player.y,found=false;
+  for(let attempt=0;attempt<110;attempt++){
+   const angle=Math.random()*Math.PI*2;
+   const dist=Math.max(W,H)*(.58+Math.random()*.32)+100;
+   const tx=Math.max(WORLD_MIN+35,Math.min(WORLD_MAX-35,player.x+Math.cos(angle)*dist));
+   const ty=Math.max(WORLD_MIN+35,Math.min(WORLD_MAX-35,player.y+Math.sin(angle)*dist));
+   if(!circleHitsWorld(tx,ty,15)&&Math.hypot(tx-player.x,ty-player.y)>180){x=tx;y=ty;found=true;break;}
   }
- }
- // Respaldo: buscar una zona despejada más cerca si el anillo exterior está ocupado.
- if(!found){
-  for(let ring=1;ring<=12&&!found;ring++){
-   for(let i=0;i<24;i++){
+  if(!found){
+   for(let ring=1;ring<=14&&!found;ring++)for(let i=0;i<24;i++){
     const angle=i*Math.PI*2/24,dist=ring*55;
     const tx=Math.max(WORLD_MIN+35,Math.min(WORLD_MAX-35,player.x+Math.cos(angle)*dist));
     const ty=Math.max(WORLD_MIN+35,Math.min(WORLD_MAX-35,player.y+Math.sin(angle)*dist));
     if(!circleHitsWorld(tx,ty,15)&&Math.hypot(tx-player.x,ty-player.y)>100){x=tx;y=ty;found=true;break;}
    }
   }
+  if(!found){spawnTimer=.5;return;}
+
+  if(wave%3===0&&bossWave){
+   const bossIndex=(wave/3-1)%3;
+   const bosses=[
+    {name:'TITÁN BLINDADO',kind:'titan',color:'#ff4242',hp:1250+wave*220,speed:23+wave*.55,reward:1300+wave*130,scale:2.25,shirt:'#596a52',pants:'#303d32',skin:'#899879',vest:'#9a9f62',hat:'#4a5c3d'},
+    {name:'DESTRUCTOR MUTANTE',kind:'mutant',color:'#c77cff',hp:1050+wave*205,speed:34+wave*.55,reward:1450+wave*140,scale:2.05,shirt:'#644c70',pants:'#30283b',skin:'#9a82a5',vest:'#a36a9d'},
+    {name:'REY ZOMBI',kind:'king',color:'#ffb84d',hp:1550+wave*240,speed:27+wave*.6,reward:1800+wave*160,scale:2.35,shirt:'#6b4b32',pants:'#332b27',skin:'#b49a65',hat:'#d0a84e',vest:'#b18a42'}
+   ];
+   const br=bosses[bossIndex],rarity={name:'JEFE',color:br.color,hp:br.hp,speed:br.speed,reward:br.reward,scale:br.scale};
+   zombies.push({x,y,hp:br.hp,maxHp:br.hp,speed:br.speed,reward:br.reward,rarity,scale:br.scale,attack:0,hit:0,phase:0,boss:true,name:br.name,bossKind:br.kind,outfit:br});
+   bossWave=false;showToast('¡JEFE '+br.name+'!');return;
+  }
+
+  let r=Math.random(),idx=r<.62?0:r<.82?1:r<.94?2:r<.99?3:4;
+  if(wave>=4&&Math.random()<.08)idx=Math.max(idx,2);
+  const base=rarities[idx],mult=1+(wave-1)*.13;
+  const outfits=[
+   {name:'civil',shirt:'#557a4c',pants:'#263b32',skin:'#718d61'},
+   {name:'policia',shirt:'#263e68',pants:'#172a43',skin:'#91a27b',hat:'#182b50',badge:'#f4d35e'},
+   {name:'militar',shirt:'#657344',pants:'#39452c',skin:'#82916c',hat:'#46552f',vest:'#8c9855'},
+   {name:'obrero',shirt:'#d47b32',pants:'#4a4540',skin:'#a0a17c',hat:'#e4b84c',vest:'#f2cf55'},
+   {name:'medico',shirt:'#d6ded0',pants:'#64736d',skin:'#91a17c',hat:'#dce8df',cross:'#d94e4e'},
+   {name:'bombero',shirt:'#a63e35',pants:'#343b3b',skin:'#9aa17b',hat:'#d5a63d',vest:'#e0b94d'},
+   {name:'cientifico',shirt:'#a9c4b8',pants:'#52615b',skin:'#b0a58b',hat:'#e3e6d7',mask:'#dce6dc'},
+   {name:'callejero',shirt:'#754a83',pants:'#282d3d',skin:'#8c9b70',hat:'#33283e'}
+  ];
+  const enemyRoll=Math.random();
+  let enemy={id:'walker',label:'CAMINANTE',hp:1,speed:1,reward:1,scale:1,color:'#8be36d',outfit:null};
+  if(wave>=2&&enemyRoll<.19)enemy={id:'runner',label:'CORREDOR',hp:.72,speed:1.9,reward:1.5,scale:.88,color:'#ffd45a',outfit:{name:'runner',shirt:'#9a7047',pants:'#4b332d',skin:'#8b956e'}};
+  else if(wave>=3&&enemyRoll<.34)enemy={id:'soldier',label:'BLINDADO',hp:1.85,speed:.78,reward:2.1,scale:1.12,color:'#68d8ff',outfit:{name:'soldier',shirt:'#596b3e',pants:'#34412e',skin:'#879477',hat:'#465b34',vest:'#a1a65e'}};
+  else if(wave>=4&&enemyRoll<.46)enemy={id:'toxic',label:'TÓXICO',hp:1.25,speed:1.08,reward:2.4,scale:1.04,color:'#b8ee62',outfit:{name:'toxic',shirt:'#55764d',pants:'#334536',skin:'#9cae70',mask:'#d8e9b8',hat:'#7d9b48'}};
+  else if(wave>=5&&enemyRoll<.55)enemy={id:'brute',label:'BRUTO',hp:2.7,speed:.62,reward:3.2,scale:1.35,color:'#ff8b62',outfit:{name:'brute',shirt:'#874c38',pants:'#40332f',skin:'#a58b72',vest:'#a45b3c'}};
+  const outfit=enemy.outfit||outfits[Math.floor(Math.random()*outfits.length)];
+  const hp=base.hp*mult*enemy.hp,speed=base.speed*(1+(wave-1)*.025)*enemy.speed,reward=Math.round(base.reward*enemy.reward);
+  const rarity={...base,color:enemy.color};
+  zombies.push({x,y,hp,maxHp:hp,speed,reward,rarity,scale:base.scale*enemy.scale,attack:0,hit:0,phase:Math.random()*6,outfit,enemyId:enemy.id,enemyLabel:enemy.label});
  }
- // Último respaldo seguro: no insertar el zombie dentro de un obstáculo.
- if(!found){spawnTimer=.5;return;}
- if(wave%3===0&&bossWave){const br={name:'JEFE',color:'#ff4242',hp:1050+wave*210,speed:24+wave*.7,reward:1200+wave*120,scale:2.35};const names=['TITÁN','DESTRUCTOR','REY ZOMBI'];zombies.push({x,y,hp:br.hp,maxHp:br.hp,speed:br.speed,reward:br.reward,rarity:br,scale:br.scale,attack:0,hit:0,phase:0,boss:true,name:names[(wave/3-1)%3]});bossWave=false;showToast('¡JEFE '+zombies[zombies.length-1].name+'!');return;}
- let r=Math.random(),idx=r<.62?0:r<.82?1:r<.94?2:r<.99?3:4;
- if(wave>=4&&Math.random()<.08)idx=Math.max(idx,2);
- const base=rarities[idx],mult=1+(wave-1)*.13;
- const outfits=[
-  {name:'civil',shirt:'#557a4c',pants:'#263b32',skin:'#718d61',hat:null},
-  {name:'policia',shirt:'#263e68',pants:'#172a43',skin:'#91a27b',hat:'#182b50',badge:'#f4d35e'},
-  {name:'militar',shirt:'#657344',pants:'#39452c',skin:'#82916c',hat:'#46552f',vest:'#8c9855'},
-  {name:'obrero',shirt:'#d47b32',pants:'#4a4540',skin:'#a0a17c',hat:'#e4b84c',vest:'#f2cf55'},
-  {name:'medico',shirt:'#d6ded0',pants:'#64736d',skin:'#91a17c',hat:'#dce8df',cross:'#d94e4e'},
-  {name:'bombero',shirt:'#a63e35',pants:'#343b3b',skin:'#9aa17b',hat:'#d5a63d',vest:'#e0b94d'},
-  {name:'cientifico',shirt:'#a9c4b8',pants:'#52615b',skin:'#b0a58b',hat:'#e3e6d7',mask:'#dce6dc'},
-  {name:'callejero',shirt:'#754a83',pants:'#282d3d',skin:'#8c9b70',hat:'#33283e'}
- ];
- const outfit=outfits[Math.floor(Math.random()*outfits.length)];
- zombies.push({x,y,hp:base.hp*mult,maxHp:base.hp*mult,speed:base.speed*(1+(wave-1)*.025),reward:base.reward,rarity:base,scale:base.scale,attack:0,hit:0,phase:Math.random()*6,outfit});
-}
 function shoot(){
  let w=currentWeapon(),a=ammo[w.id],now=performance.now();if(now-lastShot<w.rate||a.mag<=0)return;
  lastShot=now;a.mag--;let base=Math.atan2(mouse.y-H*.66,mouse.x-W/2);
@@ -351,7 +364,7 @@ function update(dt){
  cameraShake=Math.max(0,cameraShake-dt*18);if(toastTimer>0){toastTimer-=dt;if(toastTimer<=0)$('toast').textContent=''}
  updateHud();
 }
-function updateHud(){if(!player){const a=$('accountPreview');if(a)a.textContent='CUENTA: $'+money.toLocaleString('es-AR');return;}$('healthText').textContent=Math.max(0,Math.ceil(player.hp))+' / '+player.maxHp;$('healthBar').style.width=Math.max(0,player.hp/player.maxHp*100)+'%';$('healthBar').style.background=player.hp<30?'#ff6868':'#8be36d';$('waveText').textContent=wave;$('killsText').textContent=kills;$('moneyText').textContent='$'+money.toLocaleString('es-AR');$('remainingText').textContent=(spawnLeft+zombies.length);const boss=zombies.find(z=>z.boss);$('bossHud').classList.toggle('hidden',!boss);if(boss){$('bossName').textContent=boss.name;$('bossBar').style.width=Math.max(0,boss.hp/boss.maxHp*100)+'%'}[['pulse','pulseCd','pulseBtn'],['dash','dashCd','dashBtn'],['heal','healCd','healBtn']].forEach(([k,l,b])=>{$(l).textContent=abilityCooldowns[k]>0?abilityCooldowns[k].toFixed(1)+'s · '+({pulse:'Q',dash:'E',heal:'F'}[k]):({pulse:'Q',dash:'E',heal:'F'}[k])+' · LISTO';$(b).disabled=abilityCooldowns[k]>0});$('ammoText').textContent=ammo[weaponId].mag+' / '+ammo[weaponId].reserve;$('weaponName').textContent=currentWeapon().name.toUpperCase()}
+function updateHud(){if(!player){const a=$('accountPreview');if(a)a.textContent='CUENTA: $'+money.toLocaleString('es-AR');return;}$('healthText').textContent=Math.max(0,Math.ceil(player.hp))+' / '+player.maxHp;$('healthBar').style.width=Math.max(0,player.hp/player.maxHp*100)+'%';$('healthBar').style.background=player.hp<30?'#ff6868':'#8be36d';$('waveText').textContent=wave;$('killsText').textContent=kills;$('moneyText').textContent='$'+money.toLocaleString('es-AR');$('remainingText').textContent=(spawnLeft+zombies.length);$('zoneText').textContent=currentDistrict().name;const boss=zombies.find(z=>z.boss);$('bossHud').classList.toggle('hidden',!boss);if(boss){$('bossName').textContent=boss.name;$('bossBar').style.width=Math.max(0,boss.hp/boss.maxHp*100)+'%'}[['pulse','pulseCd','pulseBtn'],['dash','dashCd','dashBtn'],['heal','healCd','healBtn']].forEach(([k,l,b])=>{$(l).textContent=abilityCooldowns[k]>0?abilityCooldowns[k].toFixed(1)+'s · '+({pulse:'Q',dash:'E',heal:'F'}[k]):({pulse:'Q',dash:'E',heal:'F'}[k])+' · LISTO';$(b).disabled=abilityCooldowns[k]>0});$('ammoText').textContent=ammo[weaponId].mag+' / '+ammo[weaponId].reserve;$('weaponName').textContent=currentWeapon().name.toUpperCase()}
 function gameOver(){saveProfile();saveRun();state='over';$('overlay').classList.remove('hidden');$('menuSubtitle').innerHTML=`TE ALCANZARON...<br>Sobreviviste hasta la oleada ${wave}. Eliminaste ${kills} zombies.<br>Saldo guardado: $${money.toLocaleString('es-AR')}.`;$('startBtn').textContent='VOLVER A JUGAR';$('helpText').textContent='Cada partida empieza desde cero. ¡Probá llegar más lejos!'}
 function draw(){
  ctx.clearRect(0,0,W,H);
@@ -380,14 +393,29 @@ function draw(){
 // Ciudad procedural por sectores: el mapa continúa en todas las direcciones.
 
 const BLOCK=620,ROAD=140;
-const WORLD_MIN=-2*BLOCK,WORLD_MAX=2*BLOCK;
+// Mundo abierto finito: 8 x 8 sectores conectados, con la base militar en el centro.
+const WORLD_MIN=-4*BLOCK,WORLD_MAX=4*BLOCK;
+function districtAt(ix,iy){
+ if(ix===0&&iy===0)return {id:'military',name:'BASE MILITAR',ground:['#39463c','#303d35','#465346']};
+ if(ix===1&&iy===0)return {id:'downtown',name:'CENTRO URBANO',ground:['#454946','#383f3c','#50534e']};
+ if(ix===-1&&iy===0)return {id:'market',name:'ZONA COMERCIAL',ground:['#49453d','#3c3b35','#565044']};
+ if(ix===0&&iy===1)return {id:'hospital',name:'DISTRITO HOSPITALARIO',ground:['#3b4946','#303d3b','#465652']};
+ if(ix===1&&iy===1)return {id:'industrial',name:'ZONA INDUSTRIAL',ground:['#454640','#383b36','#505044']};
+ if(ix===-1&&iy===1)return {id:'park',name:'PARQUE Y LAS AFUERAS',ground:['#30483a','#263d32','#3a5542']};
+ if(ix<=-2&&iy<=-1)return {id:'suburbs',name:'BARRIO RESIDENCIAL',ground:['#33463c','#2a3c34','#394a3e']};
+ if(ix>=2&&iy<=0)return {id:'oldtown',name:'CASCO ANTIGUO',ground:['#414640','#343b37','#4b5048']};
+ if(ix>=2&&iy>=1)return {id:'industrial',name:'CORREDOR INDUSTRIAL',ground:['#454640','#383b36','#505044']};
+ if(ix<=-2&&iy>=1)return {id:'outskirts',name:'LAS AFUERAS',ground:['#34483b','#293d33','#3c5140']};
+ return {id:'suburbs',name:'BARRIO RESIDENCIAL',ground:['#35483d','#2c3e35','#3d4e40']};
+}
+function currentDistrict(){return districtAt(Math.floor(player.x/BLOCK),Math.floor(player.y/BLOCK));}
 function blockSeed(ix,iy){
  let n=(ix*374761393+iy*668265263+0x5f3759df)|0;
  n=Math.imul(n^(n>>>13),1274126177);
  return (n^(n>>>16))>>>0;
 }
 function worldObjects(x1,y1,x2,y2){
- const out=[],ix1=Math.max(-2,Math.floor(x1/BLOCK)-1),ix2=Math.min(1,Math.floor(x2/BLOCK)+1),iy1=Math.max(-2,Math.floor(y1/BLOCK)-1),iy2=Math.min(1,Math.floor(y2/BLOCK)+1);
+ const out=[],ix1=Math.max(-4,Math.floor(x1/BLOCK)-1),ix2=Math.min(3,Math.floor(x2/BLOCK)+1),iy1=Math.max(-4,Math.floor(y1/BLOCK)-1),iy2=Math.min(3,Math.floor(y2/BLOCK)+1);
  if(ix1>ix2||iy1>iy2)return out;
  const kinds=['house','shop','warehouse','hospital','police','gas'];
  for(let ix=ix1;ix<=ix2;ix++)for(let iy=iy1;iy<=iy2;iy++){
@@ -419,7 +447,18 @@ function worldObjects(x1,y1,x2,y2){
   const addBuilding=(slot,kindOverride)=>{
    const [sx,sy,sw,sh]=slots[slot],w=Math.round(sw*(.78+rnd()*.22)),h=Math.round(sh*(.78+rnd()*.22));
    const x=ox+sx+Math.round(rnd()*(sw-w)),y=oy+sy+Math.round(rnd()*(sh-h));
-   const kind=kindOverride||kinds[(district+(slot===0?0:Math.floor(rnd()*3)))%kinds.length];
+   const districtKinds={
+     downtown:['police','shop','hospital','shop'],
+     market:['shop','shop','house','gas'],
+     hospital:['hospital','hospital','house','shop'],
+     industrial:['warehouse','warehouse','gas','police'],
+     park:['house','house','shop','gas'],
+     oldtown:['shop','house','police','house'],
+     outskirts:['house','gas','warehouse','house'],
+     suburbs:['house','house','shop','house']
+    };
+    const pool=districtKinds[district.id]||kinds;
+    const kind=kindOverride||pool[(slot+Math.floor(rnd()*pool.length))%pool.length];
    out.push({type:'building',kind,x,y,w,h});occupied.push(slot);
   };
   if(layout===0){addBuilding(0,'house');addBuilding(3,'house');}
@@ -516,9 +555,8 @@ function drawWorld(){
  ctx.fillStyle='#303d38';ctx.fillRect(left,top,right-left,bottom-top);
  // Veredas y manzanas con paletas distintas según el barrio.
  for(let x=Math.floor(left/tile)*tile;x<right;x+=tile)for(let y=Math.floor(top/tile)*tile;y<bottom;y+=tile){
-  const gx=Math.floor(x/BLOCK),gy=Math.floor(y/BLOCK),zone=((gx*7+gy*11)%4+4)%4;
-  const palettes=[['#33463c','#2a3c34','#394a3e'],['#3b4540','#303a36','#46504a'],['#42413a','#343b36','#4b4840'],['#34443c','#293a33','#3c5141']];
-  const pal=palettes[zone],n=Math.abs(Math.floor(x/tile)*17+Math.floor(y/tile)*31)%7;
+  const gx=Math.floor(x/BLOCK),gy=Math.floor(y/BLOCK),pal=districtAt(gx,gy).ground;
+  const n=Math.abs(Math.floor(x/tile)*17+Math.floor(y/tile)*31)%7;
   ctx.fillStyle=pal[n===0?0:n===1?1:2];ctx.fillRect(x,y,tile-2,tile-2);
  }
  const firstX=Math.floor(left/BLOCK)*BLOCK,lastX=right+BLOCK,firstY=Math.floor(top/BLOCK)*BLOCK,lastY=bottom+BLOCK;
@@ -635,7 +673,7 @@ function drawZombie(z){
  // Los jefes conservan su tamaño y llevan una silueta reforzada.
  if(z.boss){ctx.strokeStyle='#ff4242';ctx.lineWidth=3;ctx.strokeRect(-17,-35,34,54);ctx.fillStyle='#ff4242';ctx.fillRect(-13,-39,26,5);}
  ctx.fillStyle='#101a19';ctx.fillRect(-14,-39,28,5);ctx.fillStyle=z.rarity.color;ctx.fillRect(-14,-39,28*Math.max(0,z.hp/z.maxHp),5);
- if(z.boss||z.rarity.reward>=75){ctx.fillStyle=z.rarity.color;ctx.font=z.boss?'bold 12px monospace':'9px monospace';ctx.textAlign='center';ctx.fillText(z.boss?z.name:z.rarity.name,0,z.boss?-46:-44);}
+ if(z.boss||z.rarity.reward>=75||z.enemyId!=='walker'){ctx.fillStyle=z.rarity.color;ctx.font=z.boss?'bold 12px monospace':'9px monospace';ctx.textAlign='center';ctx.fillText(z.boss?z.name:(z.enemyLabel||z.rarity.name),0,z.boss?-58:-44);}
  ctx.restore();
 }
 function drawPet(){
@@ -702,9 +740,9 @@ function drawMapUI(){
   const mapX=(W-big)/2,mapY=(H-big)/2+2;
   drawMapPanel(mapX,mapY,big,4.0,false,0,0,true);
   ctx.fillStyle='#f4f7e9';ctx.font='bold 16px monospace';ctx.textAlign='center';
-  ctx.fillText('MAPA DEL SECTOR · M PARA CERRAR',W/2,mapY-20);
+  ctx.fillText('MAPA DEL MUNDO · M PARA CERRAR',W/2,mapY-20);
   ctx.fillStyle='#8be36d';ctx.font='bold 10px monospace';
-  ctx.fillText('● BASE MILITAR   ● TU POSICIÓN   ·   SECTOR EXPLORABLE',W/2,mapY+big+22);
+  ctx.fillText('● BASE MILITAR   ● TU POSICIÓN   ·   8 × 8 SECTORES',W/2,mapY+big+22);
   ctx.restore();
  }
 }
@@ -723,7 +761,8 @@ function drawMapPanel(x,y,size,zoom,onlyExplored,centerX,centerY,showBase){
   if(!known)continue;
   const bx=ix*BLOCK,by=iy*BLOCK;
   // Manzanas y veredas con calles anchas y cruces claramente legibles.
-  ctx.fillStyle=((ix+iy)&1)?'#354a3e':'#3c5145';
+  const district=districtAt(ix,iy);
+  ctx.fillStyle=district.ground[1];
   ctx.fillRect(sx(bx),sy(by),BLOCK*scale,BLOCK*scale);
   ctx.fillStyle='#626b67';
   ctx.fillRect(sx(bx-ROAD/2),sy(by),ROAD*scale,BLOCK*scale);
